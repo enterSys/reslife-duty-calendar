@@ -4,4 +4,4 @@ node_modules/
 .vercel
 *.log
 .DS_Store
-output.css
+# output.css - temporarily commented out to deploy CSS
