@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const db = require('../db');
 const { sendPasswordResetEmail } = require('../utils/email');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -155,6 +156,25 @@ router.post('/reset-password', async (req, res) => {
     res.json({ message: 'Password reset successful' });
   } catch (error) {
     console.error('Password reset error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get current user info
+router.get('/me', authMiddleware, async (req, res) => {
+  try {
+    const result = await db.query(
+      'SELECT id, email, full_name, role FROM users WHERE id = $1',
+      [req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Get user error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });

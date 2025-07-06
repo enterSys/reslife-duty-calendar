@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResLife Duty Calendar - Modern UI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles-v2.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1976D2">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>ResLife</h2>
+            <button class="sidebar-toggle mobile-only" onclick="toggleSidebar()">×</button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="#dashboard" class="nav-item active" onclick="showSection('dashboard')">
+                <span class="icon">📊</span>
+                <span class="label">Dashboard</span>
+            </a>
+            <a href="#calendar" class="nav-item" onclick="showSection('calendar')">
+                <span class="icon">📅</span>
+                <span class="label">Calendar</span>
+            </a>
+            <a href="#my-duties" class="nav-item" onclick="showSection('my-duties')">
+                <span class="icon">📋</span>
+                <span class="label">My Duties</span>
+                <span class="badge" id="duties-badge">3</span>
+            </a>
+            <a href="#swaps" class="nav-item" onclick="showSection('swaps')">
+                <span class="icon">🔄</span>
+                <span class="label">Swaps</span>
+                <span class="badge warning" id="swaps-badge">2</span>
+            </a>
+            <a href="#team" class="nav-item" onclick="showSection('team')">
+                <span class="icon">👥</span>
+                <span class="label">Team</span>
+            </a>
+            <a href="#admin" class="nav-item admin-only" onclick="showSection('admin')">
+                <span class="icon">⚙️</span>
+                <span class="label">Admin</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <img src="https://ui-avatars.com/api/?name=User&background=1976D2&color=fff" alt="User" class="user-avatar">
+                <div class="user-details">
+                    <div class="user-name" id="sidebar-user-name">Loading...</div>
+                    <div class="user-role" id="sidebar-user-role">Team Member</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <span class="icon">🚪</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <button class="sidebar-toggle desktop-hidden" onclick="toggleSidebar()">☰</button>
+            <h1 id="page-title">Dashboard</h1>
+            
+            <div class="top-bar-actions">
+                <button class="icon-btn" onclick="showNotifications()">
+                    <span class="icon">🔔</span>
+                    <span class="notification-dot"></span>
+                </button>
+                <button class="icon-btn" onclick="showSettings()">
+                    <span class="icon">⚙️</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="content-section active">
+            <div class="dashboard-grid">
+                <!-- Quick Stats -->
+                <div class="stat-card primary">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Next Duty</div>
+                        <div class="stat-value" id="next-duty-date">Tomorrow</div>
+                        <div class="stat-detail">Night Shift - Block A</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card success">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Completed</div>
+                        <div class="stat-value">12</div>
+                        <div class="stat-detail">This month</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card warning">
+                    <div class="stat-icon">🔄</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Pending Swaps</div>
+                        <div class="stat-value">2</div>
+                        <div class="stat-detail">Awaiting response</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card info">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Team Status</div>
+                        <div class="stat-value">8/10</div>
+                        <div class="stat-detail">Available today</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Duties Timeline -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Upcoming Duties</h2>
+                    <button class="btn-text">View All</button>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item urgent">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">Tomorrow - Dec 28</div>
+                            <div class="timeline-title">Night Duty - Block A</div>
+                            <div class="timeline-meta">8:00 PM - 8:00 AM</div>
+                            <button class="btn-small">Request Swap</button>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">Jan 2, 2025</div>
+                            <div class="timeline-title">Weekend Duty</div>
+                            <div class="timeline-meta">Full day coverage</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">Jan 5, 2025</div>
+                            <div class="timeline-title">Evening Duty - Block B</div>
+                            <div class="timeline-meta">6:00 PM - 12:00 AM</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Activity Feed -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Recent Activity</h2>
+                </div>
+                <div class="activity-feed">
+                    <div class="activity-item">
+                        <img src="https://ui-avatars.com/api/?name=Sarah&background=4CAF50&color=fff" class="activity-avatar">
+                        <div class="activity-content">
+                            <div class="activity-text"><strong>Sarah P</strong> requested a swap for Jan 5</div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+                        <button class="btn-small success">Accept</button>
+                    </div>
+                    <div class="activity-item">
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=FF5722&color=fff" class="activity-avatar">
+                        <div class="activity-content">
+                            <div class="activity-text"><strong>Admin</strong> assigned you to Weekend Duty</div>
+                            <div class="activity-time">Yesterday</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calendar Section -->
+        <section id="calendar-section" class="content-section">
+            <div class="calendar-toolbar">
+                <div class="calendar-nav">
+                    <button class="btn-icon" onclick="previousMonth()">←</button>
+                    <h2 id="current-month">December 2024</h2>
+                    <button class="btn-icon" onclick="nextMonth()">→</button>
+                </div>
+                <div class="calendar-actions">
+                    <button class="btn-secondary" onclick="goToToday()">Today</button>
+                    <div class="view-switcher">
+                        <button class="view-btn active">Month</button>
+                        <button class="view-btn">Week</button>
+                        <button class="view-btn">List</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="calendar-container">
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- Calendar will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Calendar Legend -->
+            <div class="calendar-legend">
+                <div class="legend-item">
+                    <span class="legend-color my-duty"></span>
+                    <span>My Duty</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color swap-available"></span>
+                    <span>Available for Swap</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color swap-pending"></span>
+                    <span>Swap Pending</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color team-duty"></span>
+                    <span>Team Duty</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Section -->
+        <section id="admin-section" class="content-section">
+            <div class="admin-grid">
+                <!-- Quick Actions -->
+                <div class="card">
+                    <h2>Quick Actions</h2>
+                    <div class="quick-actions">
+                        <button class="action-btn" onclick="showAssignDuty()">
+                            <span class="icon">➕</span>
+                            <span>Assign Duty</span>
+                        </button>
+                        <button class="action-btn" onclick="showBulkAssign()">
+                            <span class="icon">📋</span>
+                            <span>Bulk Assign</span>
+                        </button>
+                        <button class="action-btn" onclick="showTeamManagement()">
+                            <span class="icon">👥</span>
+                            <span>Manage Team</span>
+                        </button>
+                        <button class="action-btn" onclick="generateReport()">
+                            <span class="icon">📊</span>
+                            <span>Generate Report</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Duty Distribution Chart -->
+                <div class="card">
+                    <h2>Duty Distribution</h2>
+                    <canvas id="duty-chart"></canvas>
+                </div>
+
+                <!-- Pending Approvals -->
+                <div class="card">
+                    <h2>Pending Approvals</h2>
+                    <div class="approval-list">
+                        <div class="approval-item">
+                            <div class="approval-info">
+                                <strong>Sarah P ↔ John D</strong>
+                                <span>Swap request for Jan 5</span>
+                            </div>
+                            <div class="approval-actions">
+                                <button class="btn-small success">Approve</button>
+                                <button class="btn-small danger">Reject</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="notification-panel" class="slide-panel">
+        <div class="panel-header">
+            <h3>Notifications</h3>
+            <button class="close-btn" onclick="closePanel('notification-panel')">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="notification-item unread">
+                <div class="notification-icon">🔔</div>
+                <div class="notification-content">
+                    <div class="notification-title">Duty Reminder</div>
+                    <div class="notification-text">You have night duty tomorrow at 8 PM</div>
+                    <div class="notification-time">1 hour ago</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script-v2.js"></script>
+</body>
+</html>
