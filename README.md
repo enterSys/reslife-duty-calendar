@@ -1,107 +1,103 @@
 # ResLife Duty Calendar
 
-A modern duty management system for residential life teams with a clean, accessible interface.
-
-## Tech Stack
-
-- **Frontend**: HTML5, Tailwind CSS, DaisyUI Components
-- **Backend**: Node.js with Vercel Serverless Functions
-- **Database**: PostgreSQL (Neon)
-- **Authentication**: JWT-based auth
-- **Deployment**: Vercel
+A modern web application for managing residential life duties, built with Next.js 15, TypeScript, and Tailwind CSS.
 
 ## Features
 
-- 📅 Monthly calendar view for duty scheduling
+- 🔐 Secure authentication with NextAuth.js
+- 📅 Interactive calendar for duty management
 - 🔄 Duty swap requests between team members
-- 👥 Team member management (admin)
-- 📱 Mobile-responsive design
-- 🎨 Custom green/white ResLife theme
-- 📧 Email notifications for swap requests
-- 📲 iCal feed for calendar subscriptions
-- 🔐 Secure authentication system
+- 📱 Responsive design with shadcn/ui components
+- 🔍 Real-time search and filtering
+- 📊 Admin dashboard for duty oversight
+- 🔗 Calendar subscription feeds
 
-## Development
+## Tech Stack
 
-1. Install dependencies:
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: NextAuth.js
+- **State Management**: TanStack Query
+- **Forms**: React Hook Form + Zod validation
+- **Deployment**: Vercel
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+ and npm
+- PostgreSQL database
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/enterSys/reslife-duty-calendar.git
+cd reslife-duty-calendar
+```
+
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Set up environment variables:
-```env
-DATABASE_URL=your_neon_database_url
-JWT_SECRET=your_jwt_secret
-```
-
-3. Build CSS:
+3. Set up environment variables:
 ```bash
-npm run build:css
+cp .env.example .env.local
 ```
 
-4. Run locally:
+Edit `.env.local` with your database credentials and NextAuth secret.
+
+4. Set up the database:
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+5. Run the development server:
 ```bash
 npm run dev
 ```
 
-## API Endpoints
-
-- `POST /api/auth/login` - User login
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/forgot-password` - Password reset
-- `GET /api/duties` - Get duties (with filters)
-- `POST /api/duties` - Create duty (admin)
-- `PUT /api/duties` - Update duty (admin)
-- `DELETE /api/duties` - Delete duty (admin)
-- `GET /api/swaps` - Get swap requests
-- `POST /api/swaps` - Create swap request
-- `PUT /api/swaps` - Accept/reject swap
-- `GET /api/calendar` - Get iCal feed
-- `GET /api/health` - Health check
-
-## UI Components
-
-The application uses DaisyUI component library for consistent styling:
-- **Hero** sections for landing pages
-- **Card** components for content sections
-- **Form controls** with consistent styling
-- **Badges** for status indicators
-- **Alerts** for notifications
-- **Tabs** for navigation
-- **Navbar** and **Drawer** for mobile navigation
-
-## Custom Theme
-
-The application uses a custom "reslife" theme with:
-- Primary color: Green (#22c55e)
-- Secondary color: Dark green (#16a34a)
-- Accent color: Lime (#84cc16)
-- Clean white backgrounds with subtle gray accents
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ## Deployment
 
-The application is configured for Vercel deployment with serverless functions. Each API endpoint is a separate serverless function for optimal performance.
+### Deploy to Vercel
+
+The easiest way to deploy is using [Vercel](https://vercel.com):
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/enterSys/reslife-duty-calendar)
+
+### Environment Variables
+
+Set these environment variables in your deployment:
+
+- `DATABASE_URL`: PostgreSQL connection string
+- `NEXTAUTH_URL`: Your deployment URL
+- `NEXTAUTH_SECRET`: Random secret for NextAuth
+
+## Development
 
 ```bash
-vercel
-```
+# Run development server
+npm run dev
 
-## Project Structure
+# Build for production
+npm run build
 
-```
-/
-├── api/                 # Serverless API functions
-│   ├── auth/           # Authentication endpoints
-│   ├── duties.js       # Duty management
-│   ├── swaps.js        # Swap requests
-│   └── calendar.js     # iCal feed
-├── index.html          # Main application
-├── auth.html           # Login/Register page
-├── script.js           # Frontend JavaScript
-├── output.css          # Compiled CSS (Tailwind + DaisyUI)
-└── manifest.json       # PWA manifest
+# Start production server
+npm start
+
+# Run type checking
+npm run type-check
+
+# Run linting
+npm run lint
 ```
 
 ## License
 
-MIT
+MIT License - see [LICENSE](LICENSE) for details.
