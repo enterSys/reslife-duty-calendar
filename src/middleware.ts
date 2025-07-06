@@ -1,27 +1,24 @@
-import { withAuth } from "next-auth/middleware"
+import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 
-export default withAuth(
-  function middleware(req) {
-    // Custom logic can go here
+export default auth((req) => {
+  const pathname = req.nextUrl.pathname
+  const isAuth = !!req.auth
+
+  // Allow access to auth pages when not logged in
+  if (pathname.startsWith("/auth")) {
     return NextResponse.next()
-  },
-  {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        const pathname = req.nextUrl.pathname
-
-        // Allow access to auth pages when not logged in
-        if (pathname.startsWith("/auth")) {
-          return true
-        }
-
-        // Require authentication for all other pages
-        return !!token
-      },
-    },
   }
-)
+
+  // Redirect to login if not authenticated
+  if (!isAuth && !pathname.startsWith("/api/auth")) {
+    const newUrl = new URL("/auth/login", req.url)
+    return NextResponse.redirect(newUrl)
+  }
+
+  return NextResponse.next()
+})
 
 export const config = {
   matcher: [
