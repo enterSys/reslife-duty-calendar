@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  fullName     String   @map("full_name")
+  role         String   @default("member")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  passwordResets        PasswordReset[]
+  duties               Duty[]
+  swapRequestsInitiated DutySwap[]             @relation("requester")
+  swapRequestsReceived  DutySwap[]             @relation("requested_with")
+  calendarSubscriptions CalendarSubscription[]
+
+  @@map("users")
+}
+
+model PasswordReset {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_resets")
+}
+
+model Duty {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  dutyDate  DateTime @map("duty_date") @db.Date
+  dutyType  String   @map("duty_type")
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user               User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  swapRequestsAsRequester DutySwap[] @relation("requester_duty")
+  swapRequestsAsRequested DutySwap[] @relation("requested_duty")
+
+  @@unique([userId, dutyDate, dutyType])
+  @@index([dutyDate])
+  @@index([userId])
+  @@map("duties")
+}
+
+model DutySwap {
+  id                 Int      @id @default(autoincrement())
+  requesterId        Int      @map("requester_id")
+  requestedWithId    Int      @map("requested_with_id")
+  requesterDutyId    Int      @map("requester_duty_id")
+  requestedDutyId    Int      @map("requested_duty_id")
+  status             String   @default("pending") // pending, accepted, rejected, cancelled
+  reason             String?
+  requesterApproved  Boolean  @default(true) @map("requester_approved")
+  requestedApproved  Boolean  @default(false) @map("requested_approved")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  requester       User @relation("requester", fields: [requesterId], references: [id], onDelete: Cascade)
+  requestedWith   User @relation("requested_with", fields: [requestedWithId], references: [id], onDelete: Cascade)
+  requesterDuty   Duty @relation("requester_duty", fields: [requesterDutyId], references: [id], onDelete: Cascade)
+  requestedDuty   Duty @relation("requested_duty", fields: [requestedDutyId], references: [id], onDelete: Cascade)
+
+  @@index([requesterId])
+  @@index([requestedWithId])
+  @@index([status])
+  @@map("duty_swaps")
+}
+
+model CalendarSubscription {
+  id               Int       @id @default(autoincrement())
+  userId           Int       @map("user_id")
+  token            String    @unique
+  name             String?
+  includeAllDuties Boolean   @default(false) @map("include_all_duties")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  lastAccessed     DateTime? @map("last_accessed")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("calendar_subscriptions")
+}
