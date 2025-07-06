@@ -21,22 +21,20 @@
    - Subscribe in Google Calendar, Apple Calendar, etc.
    - Option to include all team duties or just personal
 
-## Vercel Setup
+## Vercel Setup with Neon Database
 
 1. **Database Setup**
    - Go to your Vercel dashboard
    - Navigate to the Storage tab
-   - Create a new Postgres database
-   - Copy the environment variables
+   - Connect Neon database (or create new)
+   - The environment variables will be automatically added
 
 2. **Environment Variables**
-   Add these in Vercel project settings:
+   Neon will automatically add these variables:
    ```
-   # From Vercel Postgres
+   # From Neon
+   DATABASE_URL=
    POSTGRES_URL=
-   POSTGRES_PRISMA_URL=
-   POSTGRES_URL_NO_SSL=
-   POSTGRES_URL_NON_POOLING=
    POSTGRES_USER=
    POSTGRES_HOST=
    POSTGRES_PASSWORD=
@@ -58,7 +56,7 @@
    ```
 
 3. **Database Migration**
-   Run this SQL in Vercel Postgres query console:
+   Run this SQL in Neon SQL Editor (available in Neon dashboard):
    ```sql
    -- Copy contents from api/db/schema.sql
    ```
