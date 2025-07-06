@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResLife Duty Rota Calendar - Ashburne & Sheavyn</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-form">
+            <h2>🏠 ResLife Portal</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="login-btn">Login to ResLife</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div class="container" id="mainApp">
+        <div class="header">
+            <h1>🏠 ResLife Duty Rota</h1>
+            <p>Ashburne & Sheavyn Residential Team</p>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <span id="userName">User</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="nav-controls">
+                <button class="btn btn-secondary" onclick="previousMonth()">← Previous</button>
+                <div class="current-month" id="currentMonth"></div>
+                <button class="btn btn-secondary" onclick="nextMonth()">Next →</button>
+            </div>
+            <div class="view-toggle">
+                <button class="view-btn active" onclick="setView('month')">Month</button>
+                <button class="view-btn" onclick="setView('week')">Week</button>
+            </div>
+            <button class="btn btn-primary" onclick="goToToday()">Today</button>
+        </div>
+
+        <div class="calendar">
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- Calendar will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3>👥 Residential Advisors</h3>
+            <div class="legend-grid" id="legendGrid">
+                <!-- Legend will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stats-grid" id="statsGrid">
+                <!-- Stats will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

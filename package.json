@@ -1,0 +1,37 @@
+{
+  "name": "reslife-duty-calendar",
+  "version": "1.0.0",
+  "description": "A modern web application for managing residential life duty rotas with calendar views and team management",
+  "main": "index.html",
+  "scripts": {
+    "start": "open index.html",
+    "dev": "python -m http.server 8000",
+    "build": "echo 'No build process required for vanilla JS app'",
+    "test": "echo 'No tests specified'"
+  },
+  "keywords": [
+    "reslife",
+    "residential-life",
+    "duty-rota",
+    "calendar",
+    "team-management",
+    "university",
+    "student-housing",
+    "schedule"
+  ],
+  "author": "ResLife Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/reslife-duty-calendar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/reslife-duty-calendar/issues"
+  },
+  "homepage": "https://yourusername.github.io/reslife-duty-calendar",
+  "devDependencies": {},
+  "dependencies": {},
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}
