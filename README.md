@@ -1,159 +1,107 @@
-# 🏠 ResLife Duty Rota Calendar
+# ResLife Duty Calendar
 
-A modern, responsive web application for managing residential life duty rotas. Built specifically for the Ashburne & Sheavyn residential team.
+A modern duty management system for residential life teams with a clean, accessible interface.
 
-![ResLife Calendar Preview](https://via.placeholder.com/800x400/27ae60/ffffff?text=ResLife+Duty+Calendar)
+## Tech Stack
 
-## ✨ Features
+- **Frontend**: HTML5, Tailwind CSS, DaisyUI Components
+- **Backend**: Node.js with Vercel Serverless Functions
+- **Database**: PostgreSQL (Neon)
+- **Authentication**: JWT-based auth
+- **Deployment**: Vercel
 
-### 🔐 **Secure Authentication**
-- Individual user accounts for each Residential Advisor
-- Secure login system with personalized dashboards
-- User avatar and name display
+## Features
 
-### 📅 **Interactive Calendar**
-- **Month view** with full calendar grid
-- **Week view** (coming soon)
-- Navigate between months with ease
-- "Today" button for quick navigation
-- Hover tooltips showing duty notes and annual leave information
+- 📅 Monthly calendar view for duty scheduling
+- 🔄 Duty swap requests between team members
+- 👥 Team member management (admin)
+- 📱 Mobile-responsive design
+- 🎨 Custom green/white ResLife theme
+- 📧 Email notifications for swap requests
+- 📲 iCal feed for calendar subscriptions
+- 🔐 Secure authentication system
 
-### 👥 **Team Management**
-- Color-coded shifts for each Residential Advisor
-- Unique icons and initials for quick identification
-- Comprehensive team legend
+## Development
 
-### 📊 **Statistics Dashboard**
-- Total duties per month tracking
-- Active RA count
-- Busiest team member identification
-- Real-time calculations
-
-### 🎨 **Professional Design**
-- Clean, green-themed interface perfect for ResLife
-- Fully responsive design (desktop, tablet, mobile)
-- Modern hover effects and animations
-- Professional residential life branding
-
-## 🚀 Quick Start
-
-### Option 1: Direct Usage
-1. Download or clone this repository
-2. Open `index.html` in your web browser
-3. Login with demo credentials:
-   - **Administrator**: `admin` / `admin123`
-   - **Individual RAs**: `gloria` / `gloria123`, `mahzyar` / `mahzyar123`, etc.
-
-### Option 2: Local Development
+1. Install dependencies:
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/reslife-duty-calendar.git
-
-# Navigate to the project directory
-cd reslife-duty-calendar
-
-# Open in your preferred browser
-open index.html
+npm install
 ```
 
-## 👤 Demo User Accounts
-
-| Username | Password | Name |
-|----------|----------|------|
-| `admin` | `admin123` | Administrator |
-| `gloria` | `gloria123` | Gloria R |
-| `mahzyar` | `mahzyar123` | Mahzyar M |
-| `sarah` | `sarah123` | Sarah P |
-| `tasnim` | `tasnim123` | Tasnim S |
-| `emile` | `emile123` | Emile C |
-| `anmol` | `anmol123` | Anmol |
-| `catalina` | `catalina123` | Catalina D |
-
-## 🛠️ Technology Stack
-
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript
-- **Styling**: Custom CSS with modern gradients and animations
-- **Icons**: Unicode emojis for cross-platform compatibility
-- **Responsive**: CSS Grid and Flexbox for adaptive layouts
-
-## 📱 Browser Compatibility
-
-- ✅ Chrome 80+
-- ✅ Firefox 75+
-- ✅ Safari 13+
-- ✅ Edge 80+
-- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
-
-## 🔧 Customization
-
-### Adding New RAs
-1. Update the `raColors` object in `script.js` with new team members:
-```javascript
-const raColors = {
-    'New RA': { color: '#your-color', icon: 'NR' },
-    // ... existing RAs
-};
+2. Set up environment variables:
+```env
+DATABASE_URL=your_neon_database_url
+JWT_SECRET=your_jwt_secret
 ```
 
-2. Add login credentials in the `validUsers` object:
-```javascript
-const validUsers = {
-    'newra': { password: 'newra123', name: 'New RA' },
-    // ... existing users
-};
+3. Build CSS:
+```bash
+npm run build:css
 ```
 
-3. Update the `rotaData` array with new duty assignments.
-
-### Modifying the Color Scheme
-The green theme can be customized by updating CSS variables:
-- Primary green: `#27ae60`
-- Secondary green: `#2ecc71`
-- Accent colors: Various shades of green for different RAs
-
-## 📊 Data Structure
-
-The duty rota data is stored in a simple JavaScript array:
-```javascript
-const rotaData = [
-    {
-        date: '2025-06-01',
-        ra: 'Gloria R',
-        notes: 'Special notes or annual leave info'
-    },
-    // ... more entries
-];
+4. Run locally:
+```bash
+npm run dev
 ```
 
-## 🚀 Future Enhancements
+## API Endpoints
 
-- [ ] **Week View Implementation**
-- [ ] **Duty Swap Request System**
-- [ ] **Google Calendar Integration**
-- [ ] **Email Notifications**
-- [ ] **Annual Leave Dashboard**
-- [ ] **Emergency Contact Integration**
-- [ ] **Export to PDF/Excel**
-- [ ] **Mobile App (PWA)**
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/forgot-password` - Password reset
+- `GET /api/duties` - Get duties (with filters)
+- `POST /api/duties` - Create duty (admin)
+- `PUT /api/duties` - Update duty (admin)
+- `DELETE /api/duties` - Delete duty (admin)
+- `GET /api/swaps` - Get swap requests
+- `POST /api/swaps` - Create swap request
+- `PUT /api/swaps` - Accept/reject swap
+- `GET /api/calendar` - Get iCal feed
+- `GET /api/health` - Health check
 
-## 🤝 Contributing
+## UI Components
 
-We welcome contributions! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+The application uses DaisyUI component library for consistent styling:
+- **Hero** sections for landing pages
+- **Card** components for content sections
+- **Form controls** with consistent styling
+- **Badges** for status indicators
+- **Alerts** for notifications
+- **Tabs** for navigation
+- **Navbar** and **Drawer** for mobile navigation
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## Custom Theme
 
-## 📝 License
+The application uses a custom "reslife" theme with:
+- Primary color: Green (#22c55e)
+- Secondary color: Dark green (#16a34a)
+- Accent color: Lime (#84cc16)
+- Clean white backgrounds with subtle gray accents
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Deployment
 
-## 📞 Support
+The application is configured for Vercel deployment with serverless functions. Each API endpoint is a separate serverless function for optimal performance.
 
-For support, please contact the ResLife team or create an issue in this repository.
+```bash
+vercel
+```
 
----
+## Project Structure
 
-**Built with ❤️ for the Ashburne & Sheavyn Residential Team**
+```
+/
+├── api/                 # Serverless API functions
+│   ├── auth/           # Authentication endpoints
+│   ├── duties.js       # Duty management
+│   ├── swaps.js        # Swap requests
+│   └── calendar.js     # iCal feed
+├── index.html          # Main application
+├── auth.html           # Login/Register page
+├── script.js           # Frontend JavaScript
+├── output.css          # Compiled CSS (Tailwind + DaisyUI)
+└── manifest.json       # PWA manifest
+```
+
+## License
+
+MIT
