@@ -1,145 +1,155 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="reslife">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResLife Duty Calendar - Login</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        .auth-container {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 30px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .auth-form input {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .auth-form button {
-            padding: 12px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .auth-form button:hover {
-            background: #0056b3;
-        }
-        .auth-switch {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .auth-switch a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        .error-message {
-            color: #dc3545;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        .success-message {
-            color: #28a745;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-    </style>
+    <title>ResLife - Login</title>
+    <link href="./output.css" rel="stylesheet">
 </head>
-<body>
-    <div class="auth-container">
-        <h2 id="auth-title">Login</h2>
-        <div id="message"></div>
-        
-        <form id="login-form" class="auth-form">
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-            <div class="auth-switch">
-                <a href="#" onclick="toggleForgotPassword()">Forgot Password?</a>
+<body class="min-h-screen bg-base-200">
+    <div class="hero min-h-screen">
+        <div class="hero-content flex-col lg:flex-row-reverse">
+            <div class="text-center lg:text-left">
+                <h1 class="text-5xl font-bold text-primary">ResLife Duty Calendar</h1>
+                <p class="py-6">Manage your residential life duties efficiently. Login to view your schedule, request swaps, and stay connected with your team.</p>
             </div>
-        </form>
+            <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+                <div class="card-body">
+                    <!-- Tabs -->
+                    <div role="tablist" class="tabs tabs-boxed">
+                        <a role="tab" class="tab tab-active" onclick="showLoginForm()">Login</a>
+                        <a role="tab" class="tab" onclick="showRegisterForm()">Register</a>
+                    </div>
 
-        <form id="register-form" class="auth-form" style="display: none;">
-            <input type="text" id="reg-fullname" placeholder="Full Name" required>
-            <input type="email" id="reg-email" placeholder="Email" required>
-            <input type="password" id="reg-password" placeholder="Password" required>
-            <input type="password" id="reg-confirm" placeholder="Confirm Password" required>
-            <button type="submit">Register</button>
-        </form>
+                    <!-- Alert for messages -->
+                    <div id="message" class="hidden">
+                        <!-- Messages will appear here -->
+                    </div>
 
-        <form id="forgot-form" class="auth-form" style="display: none;">
-            <p>Enter your email to receive a password reset link.</p>
-            <input type="email" id="forgot-email" placeholder="Email" required>
-            <button type="submit">Send Reset Link</button>
-            <div class="auth-switch">
-                <a href="#" onclick="showLogin()">Back to Login</a>
+                    <!-- Login Form -->
+                    <form id="login-form" class="mt-4">
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Email</span>
+                            </label>
+                            <input type="email" id="login-email" placeholder="email@example.com" class="input input-bordered input-primary" required />
+                        </div>
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Password</span>
+                            </label>
+                            <input type="password" id="login-password" placeholder="Enter your password" class="input input-bordered input-primary" required />
+                            <label class="label">
+                                <a href="#" class="label-text-alt link link-hover" onclick="showForgotForm()">Forgot password?</a>
+                            </label>
+                        </div>
+                        <div class="form-control mt-6">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form id="register-form" class="mt-4 hidden">
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Full Name</span>
+                            </label>
+                            <input type="text" id="reg-fullname" placeholder="John Doe" class="input input-bordered input-primary" required />
+                        </div>
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Email</span>
+                            </label>
+                            <input type="email" id="reg-email" placeholder="email@example.com" class="input input-bordered input-primary" required />
+                        </div>
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Password</span>
+                            </label>
+                            <input type="password" id="reg-password" placeholder="Create a password" class="input input-bordered input-primary" required />
+                        </div>
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Confirm Password</span>
+                            </label>
+                            <input type="password" id="reg-confirm" placeholder="Confirm your password" class="input input-bordered input-primary" required />
+                        </div>
+                        <div class="form-control mt-6">
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </div>
+                    </form>
+
+                    <!-- Forgot Password Form -->
+                    <form id="forgot-form" class="mt-4 hidden">
+                        <div class="alert alert-info mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>Enter your email to receive a password reset link.</span>
+                        </div>
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">Email</span>
+                            </label>
+                            <input type="email" id="forgot-email" placeholder="email@example.com" class="input input-bordered input-primary" required />
+                        </div>
+                        <div class="form-control mt-6">
+                            <button type="submit" class="btn btn-primary">Send Reset Link</button>
+                        </div>
+                        <div class="form-control mt-2">
+                            <button type="button" class="btn btn-ghost btn-sm" onclick="showLoginForm()">Back to Login</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
-
-        <div class="auth-switch" id="auth-switch">
-            <p>Don't have an account? <a href="#" onclick="toggleAuth()">Register</a></p>
         </div>
     </div>
 
     <script>
         const API_URL = '/api';
-        let isLogin = true;
 
         function showMessage(message, isError = false) {
             const messageDiv = document.getElementById('message');
-            messageDiv.innerHTML = `<div class="${isError ? 'error-message' : 'success-message'}">${message}</div>`;
+            messageDiv.className = `alert ${isError ? 'alert-error' : 'alert-success'} mb-4`;
+            messageDiv.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isError ? 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z' : 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'}" />
+                </svg>
+                <span>${message}</span>
+            `;
+            messageDiv.classList.remove('hidden');
+            
             setTimeout(() => {
-                messageDiv.innerHTML = '';
+                messageDiv.classList.add('hidden');
             }, 5000);
         }
 
-        function toggleAuth() {
-            isLogin = !isLogin;
-            document.getElementById('login-form').style.display = isLogin ? 'flex' : 'none';
-            document.getElementById('register-form').style.display = isLogin ? 'none' : 'flex';
-            document.getElementById('forgot-form').style.display = 'none';
-            document.getElementById('auth-title').textContent = isLogin ? 'Login' : 'Register';
-            document.getElementById('auth-switch').innerHTML = isLogin ? 
-                '<p>Don\'t have an account? <a href="#" onclick="toggleAuth()">Register</a></p>' :
-                '<p>Already have an account? <a href="#" onclick="toggleAuth()">Login</a></p>';
+        function showLoginForm() {
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('forgot-form').classList.add('hidden');
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('tab-active'));
+            document.querySelectorAll('.tab')[0].classList.add('tab-active');
         }
 
-        function toggleForgotPassword() {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('register-form').style.display = 'none';
-            document.getElementById('forgot-form').style.display = 'flex';
-            document.getElementById('auth-title').textContent = 'Reset Password';
-            document.getElementById('auth-switch').style.display = 'none';
+        function showRegisterForm() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.remove('hidden');
+            document.getElementById('forgot-form').classList.add('hidden');
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('tab-active'));
+            document.querySelectorAll('.tab')[1].classList.add('tab-active');
         }
 
-        function showLogin() {
-            isLogin = true;
-            document.getElementById('login-form').style.display = 'flex';
-            document.getElementById('register-form').style.display = 'none';
-            document.getElementById('forgot-form').style.display = 'none';
-            document.getElementById('auth-title').textContent = 'Login';
-            document.getElementById('auth-switch').style.display = 'block';
-            document.getElementById('auth-switch').innerHTML = 
-                '<p>Don\'t have an account? <a href="#" onclick="toggleAuth()">Register</a></p>';
+        function showForgotForm() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('forgot-form').classList.remove('hidden');
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('tab-active'));
         }
 
         // Login form
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
 
             try {
                 const response = await fetch(`${API_URL}/auth/login`, {
@@ -210,7 +220,7 @@
 
                 const data = await response.json();
                 showMessage(data.message);
-                setTimeout(() => showLogin(), 3000);
+                setTimeout(() => showLoginForm(), 3000);
             } catch (error) {
                 showMessage('Network error', true);
             }
@@ -218,7 +228,7 @@
 
         // Check if already logged in
         if (localStorage.getItem('token')) {
-            window.location.href = 'index.html';
+            window.location.href = 'index-daisyui.html';
         }
     </script>
 </body>
