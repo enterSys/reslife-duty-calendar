@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5.0.43/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8 bg-base-200">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">ResLife API Test Page</h1>
+        
+        <div class="space-y-4">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title">Test Endpoints</h2>
+                    <div class="space-y-2">
+                        <button class="btn btn-primary" onclick="testEndpoint('/api/health')">Test Health</button>
+                        <button class="btn btn-primary" onclick="testEndpoint('/api/test')">Test Simple API</button>
+                        <button class="btn btn-primary" onclick="testLogin()">Test Login</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title">Response</h2>
+                    <pre id="response" class="bg-gray-100 p-4 rounded overflow-auto max-h-96"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testEndpoint(url) {
+            const responseEl = document.getElementById('response');
+            responseEl.textContent = `Testing ${url}...`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.text();
+                
+                let parsedData;
+                try {
+                    parsedData = JSON.parse(data);
+                    responseEl.textContent = JSON.stringify({
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: Object.fromEntries(response.headers.entries()),
+                        data: parsedData
+                    }, null, 2);
+                } catch (e) {
+                    responseEl.textContent = `Status: ${response.status} ${response.statusText}\n\nResponse:\n${data}`;
+                }
+            } catch (error) {
+                responseEl.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        async function testLogin() {
+            const responseEl = document.getElementById('response');
+            responseEl.textContent = 'Testing login endpoint...';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'testpassword'
+                    })
+                });
+                
+                const data = await response.text();
+                
+                let parsedData;
+                try {
+                    parsedData = JSON.parse(data);
+                    responseEl.textContent = JSON.stringify({
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: Object.fromEntries(response.headers.entries()),
+                        data: parsedData
+                    }, null, 2);
+                } catch (e) {
+                    responseEl.textContent = `Status: ${response.status} ${response.statusText}\n\nResponse:\n${data}`;
+                }
+            } catch (error) {
+                responseEl.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
