@@ -9,28 +9,34 @@ const calendarRoutes = require('./routes/calendar');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.'));
 
+// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/duties', dutyRoutes);
 app.use('/api/swaps', swapRoutes);
 app.use('/api/calendar', calendarRoutes);
 
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// For Vercel serverless deployment
-if (process.env.VERCEL) {
-  // Export app for Vercel
-  module.exports = app;
-} else {
-  // For local development
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// Vercel serverless function handler
+module.exports = (req, res) => {
+  // Remove /api prefix from the URL for Express routing
+  const originalUrl = req.url;
+  req.url = req.url.replace(/^\/api/, '');
+  
+  return new Promise((resolve, reject) => {
+    app(req, res, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
   });
-}
+};

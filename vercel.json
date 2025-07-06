@@ -3,14 +3,8 @@
   "outputDirectory": ".",
   "framework": null,
   "functions": {
-    "api/index.js": {
+    "api/[...path].js": {
       "maxDuration": 30
     }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
-    }
-  ]
+  }
 }
