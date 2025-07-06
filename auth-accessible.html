@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="reslife">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResLife - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5.0.43/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            daisyui: {
+                themes: [
+                    {
+                        reslife: {
+                            "primary": "#22c55e",
+                            "primary-content": "#ffffff",
+                            "secondary": "#16a34a",
+                            "secondary-content": "#ffffff",
+                            "accent": "#84cc16",
+                            "accent-content": "#000000",
+                            "neutral": "#f3f4f6",
+                            "neutral-content": "#1f2937",
+                            "base-100": "#ffffff",
+                            "base-200": "#f9fafb",
+                            "base-300": "#f3f4f6",
+                            "base-content": "#1f2937",
+                            "info": "#3b82f6",
+                            "info-content": "#ffffff",
+                            "success": "#22c55e",
+                            "success-content": "#ffffff",
+                            "warning": "#f59e0b",
+                            "warning-content": "#000000",
+                            "error": "#ef4444",
+                            "error-content": "#ffffff",
+                        },
+                    },
+                ],
+            },
+        }
+    </script>
+    <style>
+        /* Enhanced focus indicators */
+        *:focus {
+            outline: 3px solid #22c55e;
+            outline-offset: 2px;
+        }
+        
+        /* Skip link styles */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #22c55e;
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+        }
+        
+        .skip-link:focus {
+            top: 0;
+        }
+        
+        /* Ensure proper contrast for placeholders */
+        ::placeholder {
+            color: #6b7280;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-base-200">
+    <!-- Skip to main content link -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <main id="main-content" class="hero min-h-screen">
+        <div class="hero-content flex-col lg:flex-row-reverse">
+            <section class="text-center lg:text-left" aria-label="Welcome message">
+                <h1 class="text-5xl font-bold text-primary">ResLife Duty Calendar</h1>
+                <p class="py-6">Manage your residential life duties efficiently. Login to view your schedule, request swaps, and stay connected with your team.</p>
+            </section>
+            
+            <section class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100" aria-label="Authentication">
+                <div class="card-body">
+                    <!-- Tabs -->
+                    <div role="tablist" class="tabs tabs-boxed" aria-label="Authentication options">
+                        <button role="tab" 
+                                class="tab tab-active" 
+                                aria-selected="true" 
+                                aria-controls="login-panel"
+                                id="login-tab"
+                                onclick="showLoginForm()">Login</button>
+                        <button role="tab" 
+                                class="tab" 
+                                aria-selected="false" 
+                                aria-controls="register-panel"
+                                id="register-tab"
+                                onclick="showRegisterForm()">Register</button>
+                    </div>
+
+                    <!-- Alert for messages -->
+                    <div id="message" 
+                         class="hidden" 
+                         role="alert" 
+                         aria-live="assertive" 
+                         aria-atomic="true">
+                        <!-- Messages will appear here -->
+                    </div>
+
+                    <!-- Login Form -->
+                    <div role="tabpanel" 
+                         id="login-panel" 
+                         aria-labelledby="login-tab">
+                        <form id="login-form" class="mt-4" novalidate>
+                            <div class="form-control">
+                                <label for="login-email" class="label">
+                                    <span class="label-text">Email</span>
+                                </label>
+                                <input type="email" 
+                                       id="login-email" 
+                                       name="email"
+                                       placeholder="email@example.com" 
+                                       class="input input-bordered input-primary" 
+                                       required 
+                                       aria-required="true"
+                                       aria-describedby="login-email-error"
+                                       autocomplete="email" />
+                                <span id="login-email-error" class="text-error text-sm mt-1 hidden" role="alert"></span>
+                            </div>
+                            <div class="form-control">
+                                <label for="login-password" class="label">
+                                    <span class="label-text">Password</span>
+                                </label>
+                                <input type="password" 
+                                       id="login-password" 
+                                       name="password"
+                                       placeholder="Enter your password" 
+                                       class="input input-bordered input-primary" 
+                                       required 
+                                       aria-required="true"
+                                       aria-describedby="login-password-error"
+                                       autocomplete="current-password" />
+                                <span id="login-password-error" class="text-error text-sm mt-1 hidden" role="alert"></span>
+                                <label class="label">
+                                    <button type="button" 
+                                            class="label-text-alt link link-hover" 
+                                            onclick="showForgotForm()"
+                                            aria-label="Forgot password? Click to reset">Forgot password?</button>
+                                </label>
+                            </div>
+                            <div class="form-control mt-6">
+                                <button type="submit" class="btn btn-primary">Login</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Register Form -->
+                    <div role="tabpanel" 
+                         id="register-panel" 
+                         aria-labelledby="register-tab"
+                         class="hidden">
+                        <form id="register-form" class="mt-4" novalidate>
+                            <div class="form-control">
+                                <label for="reg-fullname" class="label">
+                                    <span class="label-text">Full Name</span>
+                                </label>
+                                <input type="text" 
+                                       id="reg-fullname"
+                                       name="fullname" 
+                                       placeholder="John Doe" 
+                                       class="input input-bordered input-primary" 
+                                       required 
+                                       aria-required="true"
+                                       aria-describedby="reg-fullname-error"
+                                       autocomplete="name" />
+                                <span id="reg-fullname-error" class="text-error text-sm mt-1 hidden" role="alert"></span>
+                            </div>
+                            <div class="form-control">
+                                <label for="reg-email" class="label">
+                                    <span class="label-text">Email</span>
+                                </label>
+                                <input type="email" 
+                                       id="reg-email"
+                                       name="email" 
+                                       placeholder="email@example.com" 
+                                       class="input input-bordered input-primary" 
+                                       required 
+                                       aria-required="true"
+                                       aria-describedby="reg-email-error"
+                                       autocomplete="email" />
+                                <span id="reg-email-error" class="text-error text-sm mt-1 hidden" role="alert"></span>
+                            </div>
+                            <div class="form-control">
+                                <label for="reg-password" class="label">
+                                    <span class="label-text">Password</span>
+                                </label>
+                                <input type="password" 
+                                       id="reg-password"
+                                       name="password" 
+                                       placeholder="Create a password" 
+                                       class="input input-bordered input-primary" 
+                                       required 
+                                       aria-required="true"
+                                       aria-describedby="reg-password-error"
+                                       autocomplete="new-password" />
+                                <span id="reg-password-error" class="text-error text-sm mt-1 hidden" role="alert"></span>
+                            </div>
+                            <div class="form-control">
+                                <label for="reg-confirm" class="label">
+                                    <span class="label-text">Confirm Password</span>
+                                </label>
+                                <input type="password" 
+                                       id="reg-confirm"
+                                       name="confirm" 
+                                       placeholder="Confirm your password" 
+                                       class="input input-bordered input-primary" 
+                                       required 
+                                       aria-required="true"
+                                       aria-describedby="reg-confirm-error"
+                                       autocomplete="new-password" />
+                                <span id="reg-confirm-error" class="text-error text-sm mt-1 hidden" role="alert"></span>
+                            </div>
+                            <div class="form-control mt-6">
+                                <button type="submit" class="btn btn-primary">Register</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Forgot Password Form -->
+                    <div id="forgot-panel" class="hidden" aria-label="Password reset form">
+                        <form id="forgot-form" class="mt-4" novalidate>
+                            <div class="alert alert-info mb-4" role="status">
+                                <svg xmlns="http://www.w3.org/2000/svg" 
+                                     fill="none" 
+                                     viewBox="0 0 24 24" 
+                                     class="stroke-current shrink-0 w-6 h-6"
+                                     aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>Enter your email to receive a password reset link.</span>
+                            </div>
+                            <div class="form-control">
+                                <label for="forgot-email" class="label">
+                                    <span class="label-text">Email</span>
+                                </label>
+                                <input type="email" 
+                                       id="forgot-email"
+                                       name="email" 
+                                       placeholder="email@example.com" 
+                                       class="input input-bordered input-primary" 
+                                       required 
+                                       aria-required="true"
+                                       aria-describedby="forgot-email-error"
+                                       autocomplete="email" />
+                                <span id="forgot-email-error" class="text-error text-sm mt-1 hidden" role="alert"></span>
+                            </div>
+                            <div class="form-control mt-6">
+                                <button type="submit" class="btn btn-primary">Send Reset Link</button>
+                            </div>
+                            <div class="form-control mt-2">
+                                <button type="button" 
+                                        class="btn btn-ghost btn-sm" 
+                                        onclick="showLoginForm()">Back to Login</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = '/api';
+
+        // Tab keyboard navigation
+        document.addEventListener('DOMContentLoaded', () => {
+            const tablist = document.querySelector('[role="tablist"]');
+            const tabs = tablist.querySelectorAll('[role="tab"]');
+            
+            tabs.forEach((tab, index) => {
+                tab.addEventListener('keydown', (e) => {
+                    let newIndex;
+                    
+                    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                        newIndex = (index + 1) % tabs.length;
+                        e.preventDefault();
+                    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                        newIndex = (index - 1 + tabs.length) % tabs.length;
+                        e.preventDefault();
+                    } else if (e.key === 'Home') {
+                        newIndex = 0;
+                        e.preventDefault();
+                    } else if (e.key === 'End') {
+                        newIndex = tabs.length - 1;
+                        e.preventDefault();
+                    }
+                    
+                    if (newIndex !== undefined) {
+                        tabs[newIndex].click();
+                        tabs[newIndex].focus();
+                    }
+                });
+            });
+        });
+
+        function showMessage(message, isError = false) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = `alert ${isError ? 'alert-error' : 'alert-success'} mb-4`;
+            messageDiv.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isError ? 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z' : 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'}" />
+                </svg>
+                <span>${message}</span>
+            `;
+            messageDiv.classList.remove('hidden');
+            
+            // Announce to screen readers
+            messageDiv.setAttribute('aria-live', isError ? 'assertive' : 'polite');
+            
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        function showLoginForm() {
+            // Update panels
+            document.getElementById('login-panel').classList.remove('hidden');
+            document.getElementById('register-panel').classList.add('hidden');
+            document.getElementById('forgot-panel').classList.add('hidden');
+            
+            // Update tabs
+            document.getElementById('login-tab').setAttribute('aria-selected', 'true');
+            document.getElementById('register-tab').setAttribute('aria-selected', 'false');
+            document.getElementById('login-tab').classList.add('tab-active');
+            document.getElementById('register-tab').classList.remove('tab-active');
+            
+            // Focus management
+            document.getElementById('login-email').focus();
+        }
+
+        function showRegisterForm() {
+            // Update panels
+            document.getElementById('login-panel').classList.add('hidden');
+            document.getElementById('register-panel').classList.remove('hidden');
+            document.getElementById('forgot-panel').classList.add('hidden');
+            
+            // Update tabs
+            document.getElementById('login-tab').setAttribute('aria-selected', 'false');
+            document.getElementById('register-tab').setAttribute('aria-selected', 'true');
+            document.getElementById('login-tab').classList.remove('tab-active');
+            document.getElementById('register-tab').classList.add('tab-active');
+            
+            // Focus management
+            document.getElementById('reg-fullname').focus();
+        }
+
+        function showForgotForm() {
+            document.getElementById('login-panel').classList.add('hidden');
+            document.getElementById('register-panel').classList.add('hidden');
+            document.getElementById('forgot-panel').classList.remove('hidden');
+            
+            // Remove active state from all tabs
+            document.getElementById('login-tab').setAttribute('aria-selected', 'false');
+            document.getElementById('register-tab').setAttribute('aria-selected', 'false');
+            document.getElementById('login-tab').classList.remove('tab-active');
+            document.getElementById('register-tab').classList.remove('tab-active');
+            
+            // Focus management
+            document.getElementById('forgot-email').focus();
+        }
+
+        // Form validation helpers
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorSpan = document.getElementById(fieldId + '-error');
+            
+            field.setAttribute('aria-invalid', 'true');
+            errorSpan.textContent = message;
+            errorSpan.classList.remove('hidden');
+        }
+
+        function clearFieldError(fieldId) {
+            const field = document.getElementById(fieldId);
+            const errorSpan = document.getElementById(fieldId + '-error');
+            
+            field.setAttribute('aria-invalid', 'false');
+            errorSpan.textContent = '';
+            errorSpan.classList.add('hidden');
+        }
+
+        // Login form
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Clear previous errors
+            clearFieldError('login-email');
+            clearFieldError('login-password');
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Validation
+            let hasErrors = false;
+            
+            if (!email) {
+                showFieldError('login-email', 'Email is required');
+                hasErrors = true;
+            } else if (!validateEmail(email)) {
+                showFieldError('login-email', 'Please enter a valid email address');
+                hasErrors = true;
+            }
+            
+            if (!password) {
+                showFieldError('login-password', 'Password is required');
+                hasErrors = true;
+            }
+            
+            if (hasErrors) return;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = 'index.html';
+                } else {
+                    showMessage(data.error || 'Login failed', true);
+                }
+            } catch (error) {
+                showMessage('Network error. Please try again.', true);
+            }
+        });
+
+        // Register form
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Clear previous errors
+            clearFieldError('reg-fullname');
+            clearFieldError('reg-email');
+            clearFieldError('reg-password');
+            clearFieldError('reg-confirm');
+            
+            const fullName = document.getElementById('reg-fullname').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+            
+            // Validation
+            let hasErrors = false;
+            
+            if (!fullName) {
+                showFieldError('reg-fullname', 'Full name is required');
+                hasErrors = true;
+            }
+            
+            if (!email) {
+                showFieldError('reg-email', 'Email is required');
+                hasErrors = true;
+            } else if (!validateEmail(email)) {
+                showFieldError('reg-email', 'Please enter a valid email address');
+                hasErrors = true;
+            }
+            
+            if (!password) {
+                showFieldError('reg-password', 'Password is required');
+                hasErrors = true;
+            } else if (password.length < 8) {
+                showFieldError('reg-password', 'Password must be at least 8 characters');
+                hasErrors = true;
+            }
+            
+            if (!confirm) {
+                showFieldError('reg-confirm', 'Please confirm your password');
+                hasErrors = true;
+            } else if (password !== confirm) {
+                showFieldError('reg-confirm', 'Passwords do not match');
+                hasErrors = true;
+            }
+            
+            if (hasErrors) return;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fullName, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = 'index.html';
+                } else {
+                    showMessage(data.error || 'Registration failed', true);
+                }
+            } catch (error) {
+                showMessage('Network error. Please try again.', true);
+            }
+        });
+
+        // Forgot password form
+        document.getElementById('forgot-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Clear previous errors
+            clearFieldError('forgot-email');
+            
+            const email = document.getElementById('forgot-email').value;
+            
+            // Validation
+            if (!email) {
+                showFieldError('forgot-email', 'Email is required');
+                return;
+            } else if (!validateEmail(email)) {
+                showFieldError('forgot-email', 'Please enter a valid email address');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+                showMessage('If an account exists with this email, you will receive a password reset link.', false);
+                setTimeout(() => showLoginForm(), 3000);
+            } catch (error) {
+                showMessage('Network error. Please try again.', true);
+            }
+        });
+
+        // Check if already logged in
+        if (localStorage.getItem('token')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
