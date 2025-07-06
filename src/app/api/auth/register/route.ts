@@ -55,8 +55,19 @@ export async function POST(request: Request) {
     }
 
     console.error("Registration error:", error)
+    
+    // More specific error handling for Prisma errors
+    if (error && typeof error === 'object' && 'code' in error) {
+      if (error.code === 'P2002') {
+        return NextResponse.json(
+          { message: "User already exists" },
+          { status: 400 }
+        )
+      }
+    }
+    
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: "Internal server error", error: process.env.NODE_ENV === "development" ? String(error) : undefined },
       { status: 500 }
     )
   }
