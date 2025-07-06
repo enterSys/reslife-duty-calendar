@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm install",
+  "buildCommand": "npm install && npm run build",
   "outputDirectory": ".",
   "framework": null,
   "functions": {
@@ -14,7 +14,7 @@
     },
     {
       "source": "/",
-      "destination": "/index-v2.html"
+      "destination": "/index-daisyui.html"
     }
   ]
 }

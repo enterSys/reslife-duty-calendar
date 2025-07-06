@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="reslife">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResLife Duty Calendar</title>
+    <link href="./output.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#22c55e">
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar bg-primary text-primary-content shadow-lg">
+        <div class="navbar-start">
+            <div class="dropdown">
+                <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
+                    </svg>
+                </div>
+                <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 text-base-content rounded-box w-52">
+                    <li><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#calendar">Calendar</a></li>
+                    <li><a href="#duties">My Duties</a></li>
+                    <li><a href="#swaps">Swaps</a></li>
+                    <li><a href="#team">Team</a></li>
+                </ul>
+            </div>
+            <a class="btn btn-ghost text-xl">🏠 ResLife</a>
+        </div>
+        <div class="navbar-center hidden lg:flex">
+            <ul class="menu menu-horizontal px-1">
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#calendar">Calendar</a></li>
+                <li><a href="#duties">My Duties</a></li>
+                <li><a href="#swaps">Swaps</a></li>
+                <li><a href="#team">Team</a></li>
+            </ul>
+        </div>
+        <div class="navbar-end">
+            <div class="dropdown dropdown-end">
+                <div class="indicator">
+                    <span class="indicator-item badge badge-secondary badge-sm">2</span>
+                    <button class="btn btn-ghost btn-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                    <div class="w-10 rounded-full">
+                        <img alt="User avatar" src="https://ui-avatars.com/api/?name=User&background=22c55e&color=fff" />
+                    </div>
+                </div>
+                <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                    <li class="menu-title">
+                        <span id="user-name">Loading...</span>
+                    </li>
+                    <li><a href="#profile">Profile</a></li>
+                    <li><a href="#settings">Settings</a></li>
+                    <li><a onclick="logout()">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container mx-auto p-4 max-w-7xl">
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="space-y-6">
+            <!-- Hero Section -->
+            <div class="hero bg-base-200 rounded-box">
+                <div class="hero-content text-center">
+                    <div class="max-w-md">
+                        <h1 class="text-5xl font-bold text-primary">Welcome Back!</h1>
+                        <p class="py-6">Your next duty is coming up soon. Stay prepared and check your schedule.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats shadow w-full grid-cols-1 md:grid-cols-4">
+                <div class="stat">
+                    <div class="stat-figure text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-title">Next Duty</div>
+                    <div class="stat-value text-primary">Tomorrow</div>
+                    <div class="stat-desc">Dec 28, 8:00 PM</div>
+                </div>
+                
+                <div class="stat">
+                    <div class="stat-figure text-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-title">Completed</div>
+                    <div class="stat-value text-success">12</div>
+                    <div class="stat-desc">This month</div>
+                </div>
+                
+                <div class="stat">
+                    <div class="stat-figure text-warning">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-title">Pending Swaps</div>
+                    <div class="stat-value text-warning">2</div>
+                    <div class="stat-desc">Awaiting response</div>
+                </div>
+                
+                <div class="stat">
+                    <div class="stat-figure text-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-title">Team Available</div>
+                    <div class="stat-value text-info">8/10</div>
+                    <div class="stat-desc">Today</div>
+                </div>
+            </div>
+
+            <!-- Upcoming Duties -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-primary">Upcoming Duties</h2>
+                    <div class="space-y-4">
+                        <!-- Duty Item -->
+                        <div class="alert alert-warning">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="flex-1">
+                                <h3 class="font-bold">Tomorrow - Dec 28</h3>
+                                <div class="text-sm">Night Duty - Block A (8:00 PM - 8:00 AM)</div>
+                            </div>
+                            <button class="btn btn-sm btn-primary">Request Swap</button>
+                        </div>
+
+                        <div class="alert">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="flex-1">
+                                <h3 class="font-bold">Jan 2, 2025</h3>
+                                <div class="text-sm">Weekend Duty - Full day coverage</div>
+                            </div>
+                        </div>
+
+                        <div class="alert">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="flex-1">
+                                <h3 class="font-bold">Jan 5, 2025</h3>
+                                <div class="text-sm">Evening Duty - Block B (6:00 PM - 12:00 AM)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-primary">Recent Activity</h2>
+                    <div class="space-y-4">
+                        <div class="chat chat-start">
+                            <div class="chat-image avatar">
+                                <div class="w-10 rounded-full">
+                                    <img alt="Sarah" src="https://ui-avatars.com/api/?name=Sarah&background=22c55e&color=fff" />
+                                </div>
+                            </div>
+                            <div class="chat-header">
+                                Sarah P
+                                <time class="text-xs opacity-50">2 hours ago</time>
+                            </div>
+                            <div class="chat-bubble chat-bubble-primary">Requested a swap for Jan 5</div>
+                            <div class="chat-footer">
+                                <button class="btn btn-xs btn-success">Accept</button>
+                                <button class="btn btn-xs btn-error">Decline</button>
+                            </div>
+                        </div>
+
+                        <div class="chat chat-start">
+                            <div class="chat-image avatar">
+                                <div class="w-10 rounded-full">
+                                    <img alt="Admin" src="https://ui-avatars.com/api/?name=Admin&background=ef4444&color=fff" />
+                                </div>
+                            </div>
+                            <div class="chat-header">
+                                Admin
+                                <time class="text-xs opacity-50">Yesterday</time>
+                            </div>
+                            <div class="chat-bubble">Assigned you to Weekend Duty</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calendar Section -->
+        <section id="calendar-section" class="hidden">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="card-title text-primary">Calendar</h2>
+                        <div class="join">
+                            <button class="join-item btn btn-sm" onclick="previousMonth()">«</button>
+                            <button class="join-item btn btn-sm" id="current-month">December 2024</button>
+                            <button class="join-item btn btn-sm" onclick="nextMonth()">»</button>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <div class="grid grid-cols-7 gap-1 min-w-[600px]" id="calendar-grid">
+                            <!-- Calendar will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="flex flex-wrap gap-4 mt-6">
+                        <div class="badge badge-primary gap-2">My Duty</div>
+                        <div class="badge badge-warning gap-2">Swap Pending</div>
+                        <div class="badge badge-success gap-2">Available for Swap</div>
+                        <div class="badge gap-2">Team Duty</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Section -->
+        <section id="admin-section" class="hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Quick Actions -->
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        <h2 class="card-title text-primary">Quick Actions</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button class="btn btn-primary" onclick="showAssignDuty()">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Assign Duty
+                            </button>
+                            <button class="btn btn-secondary" onclick="showBulkAssign()">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                Bulk Assign
+                            </button>
+                            <button class="btn btn-accent" onclick="showTeamManagement()">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                Manage Team
+                            </button>
+                            <button class="btn btn-info" onclick="generateReport()">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Reports
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Approvals -->
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body">
+                        <h2 class="card-title text-primary">Pending Approvals</h2>
+                        <div class="space-y-3">
+                            <div class="alert">
+                                <div class="flex-1">
+                                    <h3 class="font-bold">Sarah P ↔ John D</h3>
+                                    <div class="text-xs">Swap request for Jan 5</div>
+                                </div>
+                                <div class="flex-none">
+                                    <button class="btn btn-sm btn-success">Approve</button>
+                                    <button class="btn btn-sm btn-error">Reject</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Statistics -->
+            <div class="card bg-base-100 shadow-xl mt-6">
+                <div class="card-body">
+                    <h2 class="card-title text-primary">Team Statistics</h2>
+                    <div class="overflow-x-auto">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Team Member</th>
+                                    <th>Duties This Month</th>
+                                    <th>Swaps Requested</th>
+                                    <th>Reliability</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="flex items-center gap-3">
+                                            <div class="avatar">
+                                                <div class="mask mask-squircle w-12 h-12">
+                                                    <img src="https://ui-avatars.com/api/?name=Sarah&background=22c55e&color=fff" />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="font-bold">Sarah P</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>8</td>
+                                    <td>2</td>
+                                    <td>
+                                        <progress class="progress progress-success w-20" value="95" max="100"></progress>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modals -->
+    <!-- Swap Request Modal -->
+    <dialog id="swap-modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Request Duty Swap</h3>
+            <form method="dialog">
+                <div class="form-control w-full">
+                    <label class="label">
+                        <span class="label-text">Select duty to swap with:</span>
+                    </label>
+                    <select class="select select-bordered select-primary">
+                        <option disabled selected>Pick one</option>
+                        <option>Jan 2 - Weekend Duty</option>
+                        <option>Jan 5 - Evening Duty</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Reason (optional)</span>
+                    </label>
+                    <textarea class="textarea textarea-bordered textarea-primary" placeholder="Why do you need this swap?"></textarea>
+                </div>
+                <div class="modal-action">
+                    <button class="btn btn-primary">Send Request</button>
+                    <button class="btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- Notification Toast -->
+    <div class="toast toast-top toast-end" id="toast-container">
+        <!-- Toasts will be added here dynamically -->
+    </div>
+
+    <script src="script-daisyui.js"></script>
+</body>
+</html>
