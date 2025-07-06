@@ -3,7 +3,7 @@
   "outputDirectory": ".",
   "framework": null,
   "functions": {
-    "api/[...path].js": {
+    "api/**/*.js": {
       "maxDuration": 30
     }
   }
