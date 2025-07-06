@@ -75,9 +75,14 @@ The easiest way to deploy is using [Vercel](https://vercel.com):
 
 Set these environment variables in your deployment:
 
-- `DATABASE_URL`: PostgreSQL connection string
-- `NEXTAUTH_URL`: Your deployment URL
+- `DATABASE_URL`: PostgreSQL connection string (with pooling)
+- `NEXTAUTH_URL`: Your deployment URL (e.g., https://yourapp.vercel.app)
 - `NEXTAUTH_SECRET`: Random secret for NextAuth
+- `AUTH_SECRET`: Same as NEXTAUTH_SECRET
+
+For Neon databases, you might also need:
+- `POSTGRES_PRISMA_URL`: Same as DATABASE_URL
+- `POSTGRES_URL_NON_POOLING`: Direct connection URL (without pooling)
 
 ## Development
 
@@ -96,7 +101,20 @@ npm run type-check
 
 # Run linting
 npm run lint
+
+# Prisma commands
+npm run prisma:generate  # Generate Prisma client
+npm run prisma:push      # Push schema changes to database
+npm run prisma:studio    # Open Prisma Studio
 ```
+
+## API Endpoints
+
+- `/api/health` - Health check endpoint
+- `/api/auth/*` - Authentication endpoints
+- `/api/duties` - Duty management
+- `/api/swaps` - Swap requests
+- `/api/calendar` - Calendar feeds
 
 ## License
 
