@@ -1,4 +1,30 @@
-# ResLife Duty Calendar - Tech Stack Recommendations
+# ResLife Duty Calendar - Project Context
+
+## Login Credentials
+- Email: mahzeyarmaroufi@gmail.com
+- Password: adr1fmw9NXP.azb6pfy
+
+## Project Overview
+ResLife Duty Calendar is a Next.js 15 application for managing residential life duty schedules. Team members can view their duties, request swaps, and admins can manage the roster.
+
+**Live URL**: https://reslifecal.vercel.app/
+
+## Key Features
+- Monthly calendar view with 4-week display
+- Duty assignments with mini avatars
+- Swap request system
+- Team member directory
+- Admin panel for user management
+- Google Sheets import functionality
+
+## Important Notes
+- Weekday shifts: 6pm-8am next day
+- Weekend shifts: 24 hours (11am-11am)
+- Admin users should see additional features in dashboard
+
+---
+
+# Original Tech Stack Recommendations
 
 ## Current Stack Issues
 
