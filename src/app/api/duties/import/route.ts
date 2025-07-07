@@ -44,14 +44,38 @@ export async function POST(request: Request) {
     // Process each duty entry
     for (const entry of data) {
       try {
-        // Parse the date (expecting format like "1/1/2024" or "01/01/2024")
-        const dutyDate = parse(entry.date, "M/d/yyyy", new Date())
-        
-        if (isNaN(dutyDate.getTime())) {
+        // Parse the date (expecting DD/MM/YYYY format from the client)
+        let dutyDate: Date
+        try {
+          // Try DD/MM/YYYY format first (which is what our client sends)
+          dutyDate = parse(entry.date, "dd/MM/yyyy", new Date())
+          
+          if (isNaN(dutyDate.getTime())) {
+            // Fallback to other common formats
+            const formats = ["d/M/yyyy", "dd/MM/yy", "d/M/yy"]
+            let parsed = false
+            
+            for (const formatString of formats) {
+              try {
+                dutyDate = parse(entry.date, formatString, new Date())
+                if (!isNaN(dutyDate.getTime())) {
+                  parsed = true
+                  break
+                }
+              } catch {
+                continue
+              }
+            }
+            
+            if (!parsed) {
+              throw new Error("Invalid date format")
+            }
+          }
+        } catch (error) {
           results.errors.push({
             date: entry.date,
             member: entry.memberName,
-            error: "Invalid date format",
+            error: "Invalid date format - expected DD/MM/YYYY",
           })
           results.skipped++
           continue

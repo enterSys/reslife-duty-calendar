@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { format } from "date-fns"
+import { format, parse, isValid } from "date-fns"
 import { Upload, AlertCircle, CheckCircle2, Clipboard, FileSpreadsheet } from "lucide-react"
 import {
   Dialog,
@@ -31,16 +31,16 @@ import { toast } from "sonner"
 
 // Sample data structure - in production, this would come from Google Sheets API
 const SAMPLE_DATA = [
-  { date: "1/2/2024", memberName: "John Doe" },
-  { date: "1/3/2024", memberName: "Jane Smith" },
-  { date: "1/4/2024", memberName: "Robert Johnson" },
-  { date: "1/5/2024", memberName: "Emily Davis" },
-  { date: "1/6/2024", memberName: "Michael Brown" },
-  { date: "1/7/2024", memberName: "Sarah Wilson" },
-  { date: "1/8/2024", memberName: "David Martinez" },
-  { date: "1/9/2024", memberName: "Lisa Anderson" },
-  { date: "1/10/2024", memberName: "James Taylor" },
-  { date: "1/11/2024", memberName: "Mary Thomas" },
+  { date: "02/01/2024", memberName: "John Doe" },
+  { date: "03/01/2024", memberName: "Jane Smith" },
+  { date: "04/01/2024", memberName: "Robert Johnson" },
+  { date: "05/01/2024", memberName: "Emily Davis" },
+  { date: "06/01/2024", memberName: "Michael Brown" },
+  { date: "07/01/2024", memberName: "Sarah Wilson" },
+  { date: "08/01/2024", memberName: "David Martinez" },
+  { date: "09/01/2024", memberName: "Lisa Anderson" },
+  { date: "10/01/2024", memberName: "James Taylor" },
+  { date: "11/01/2024", memberName: "Mary Thomas" },
 ]
 
 interface ImportResult {
@@ -94,16 +94,64 @@ export function ImportDutiesDialog() {
     setImportResult(null)
   }
 
+  const parseDate = (dateString: string): string => {
+    // Remove day names (Mon, Tue, etc.) if present
+    let cleanDate = dateString.replace(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+/i, '').trim()
+    
+    // Try different date formats
+    const formats = [
+      'dd/MM/yyyy',      // DD/MM/YYYY
+      'dd/MM/yy',        // DD/MM/YY  
+      'MM/dd/yyyy',      // MM/DD/YYYY (US format)
+      'MM/dd/yy',        // MM/DD/YY
+      'd/M/yyyy',        // D/M/YYYY
+      'd/M/yy',          // D/M/YY
+      'yyyy-MM-dd',      // ISO format
+    ]
+    
+    for (const formatString of formats) {
+      try {
+        const parsedDate = parse(cleanDate, formatString, new Date())
+        if (isValid(parsedDate)) {
+          // Return in DD/MM/YYYY format
+          return format(parsedDate, 'dd/MM/yyyy')
+        }
+      } catch {
+        continue
+      }
+    }
+    
+    // If no format worked, try to parse as natural date
+    try {
+      const parsedDate = new Date(cleanDate)
+      if (isValid(parsedDate)) {
+        return format(parsedDate, 'dd/MM/yyyy')
+      }
+    } catch {
+      // Fall through
+    }
+    
+    throw new Error(`Invalid date format: ${dateString}`)
+  }
+
   const parsePastedData = (data: string) => {
     try {
       const lines = data.trim().split('\n')
-      const parsed = lines.map(line => {
+      const parsed = lines.map((line, index) => {
         // Split by tab or comma (common copy/paste formats)
         const columns = line.split(/\t|,/)
         if (columns.length >= 2) {
-          return {
-            date: columns[0].trim(),
-            memberName: columns[1].trim()
+          const rawDate = columns[0].trim()
+          const memberName = columns[1].trim()
+          
+          try {
+            const formattedDate = parseDate(rawDate)
+            return {
+              date: formattedDate,
+              memberName: memberName
+            }
+          } catch (error) {
+            throw new Error(`Line ${index + 1}: ${error instanceof Error ? error.message : 'Invalid date'}`)
           }
         }
         return null
@@ -115,6 +163,9 @@ export function ImportDutiesDialog() {
       
       return parsed
     } catch (error) {
+      if (error instanceof Error) {
+        throw error
+      }
       throw new Error("Invalid data format. Please ensure data is in two columns: Date and Member Name")
     }
   }
@@ -179,7 +230,9 @@ export function ImportDutiesDialog() {
                   Copy data from your spreadsheet and paste it below. Format:
                   <ul className="list-disc list-inside mt-2">
                     <li>Two columns: Date and Member Name</li>
-                    <li>Dates in format: M/D/YYYY (e.g., 1/15/2024)</li>
+                    <li>Dates can include day names: "Mon 07/01/2025" or just "07/01/2025"</li>
+                    <li>Accepts DD/MM/YYYY, MM/DD/YYYY, or various other formats</li>
+                    <li>All dates will be converted to DD/MM/YYYY format</li>
                     <li>Member names must match registered users exactly</li>
                     <li>Separate columns with tabs or commas</li>
                   </ul>
@@ -190,9 +243,9 @@ export function ImportDutiesDialog() {
                 <Label htmlFor="paste-data">Paste your data here:</Label>
                 <Textarea
                   id="paste-data"
-                  placeholder="1/15/2024	John Doe
-1/16/2024	Jane Smith
-1/17/2024	Robert Johnson"
+                  placeholder="Mon 07/01/2025	John Doe
+Tue 08/01/2025	Jane Smith
+Wed 09/01/2025	Robert Johnson"
                   value={pastedData}
                   onChange={(e) => setPastedData(e.target.value)}
                   className="min-h-[200px] font-mono text-sm"
@@ -215,7 +268,8 @@ export function ImportDutiesDialog() {
                 <AlertDescription>
                   Make sure your Google Sheet has:
                   <ul className="list-disc list-inside mt-2">
-                    <li>Dates in column A (format: M/D/YYYY)</li>
+                    <li>Dates in column A (accepts various formats, will convert to DD/MM/YYYY)</li>
+                    <li>Can include day names: "Mon 07/01/2025" or just "07/01/2025"</li>
                     <li>Member names in column B</li>
                     <li>Member names match exactly with registered users</li>
                   </ul>
