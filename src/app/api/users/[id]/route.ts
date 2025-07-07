@@ -6,6 +6,7 @@ import { z } from "zod"
 const updateUserSchema = z.object({
   role: z.enum(["user", "admin"]).optional(),
   fullName: z.string().optional(),
+  email: z.string().email().optional(),
 })
 
 export async function PATCH(
@@ -43,6 +44,7 @@ export async function PATCH(
         email: true,
         fullName: true,
         role: true,
+        createdAt: true,
       },
     })
 
@@ -56,6 +58,65 @@ export async function PATCH(
     }
 
     console.error("Error updating user:", error)
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await auth()
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  try {
+    const { id } = await params
+    const userId = parseInt(id)
+
+    // Check if the current user is admin
+    const currentUser = await prisma.user.findUnique({
+      where: { id: parseInt(session.user.id) },
+    })
+
+    if (currentUser?.role !== "admin") {
+      return NextResponse.json(
+        { error: "Only admins can delete users" },
+        { status: 403 }
+      )
+    }
+
+    // Prevent admin from deleting themselves
+    if (parseInt(session.user.id) === userId) {
+      return NextResponse.json(
+        { error: "Cannot delete your own account" },
+        { status: 400 }
+      )
+    }
+
+    // Check if user has any duties assigned
+    const userDuties = await prisma.duty.findMany({
+      where: { userId },
+    })
+
+    if (userDuties.length > 0) {
+      return NextResponse.json(
+        { error: "Cannot delete user with assigned duties. Please reassign duties first." },
+        { status: 400 }
+      )
+    }
+
+    await prisma.user.delete({
+      where: { id: userId },
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("Error deleting user:", error)
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

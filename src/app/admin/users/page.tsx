@@ -20,6 +20,13 @@ export default async function AdminUsersPage() {
   }
 
   const users = await prisma.user.findMany({
+    include: {
+      _count: {
+        select: {
+          duties: true,
+        },
+      },
+    },
     orderBy: {
       createdAt: "desc",
     },
@@ -32,6 +39,7 @@ export default async function AdminUsersPage() {
     fullName: user.fullName,
     role: user.role,
     createdAt: user.createdAt.toISOString(),
+    shiftsCount: user._count.duties,
   }))
 
   return (

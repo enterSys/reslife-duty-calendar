@@ -13,6 +13,7 @@ import { SwapRequests } from "./swap-requests"
 import { TeamMembers } from "./team-members"
 import { ImportDutiesDialog } from "./import-duties-dialog"
 import { ModeToggle } from "@/components/ui/mode-toggle"
+import { UserAvatar } from "@/components/ui/user-avatar"
 
 interface DashboardContentProps {
   session: Session
@@ -54,6 +55,7 @@ export function DashboardContent({ session }: DashboardContentProps) {
         <div className="flex items-center gap-3">
           <ModeToggle />
           {isAdmin && <ImportDutiesDialog />}
+          <UserAvatar user={session.user} />
         </div>
       </motion.div>
 
