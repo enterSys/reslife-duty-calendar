@@ -4,6 +4,8 @@ import { useState } from "react"
 import { Session } from "next-auth"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Shield, Users } from "lucide-react"
 import { CalendarView } from "./calendar-view"
 import { MyDuties } from "./my-duties"
 import { SwapRequests } from "./swap-requests"
@@ -18,6 +20,13 @@ export function DashboardContent({ session }: DashboardContentProps) {
   const [activeTab, setActiveTab] = useState("calendar")
   const isAdmin = session.user?.role === "admin"
 
+  // Debug: Log session details
+  console.log("Client session:", {
+    user: session.user,
+    role: session.user?.role,
+    isAdmin
+  })
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -25,17 +34,21 @@ export function DashboardContent({ session }: DashboardContentProps) {
           <h1 className="text-3xl font-bold">ResLife Duty Calendar</h1>
           <p className="text-muted-foreground">
             Welcome back, {session.user?.name || session.user?.email}!
+            {session.user?.role && (
+              <span className="ml-2 text-sm">({session.user.role})</span>
+            )}
           </p>
         </div>
         {isAdmin && <ImportDutiesDialog />}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className={`grid w-full ${isAdmin ? "grid-cols-5" : "grid-cols-4"}`}>
           <TabsTrigger value="calendar">Calendar</TabsTrigger>
           <TabsTrigger value="my-duties">My Duties</TabsTrigger>
           <TabsTrigger value="swaps">Swap Requests</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
+          {isAdmin && <TabsTrigger value="admin">Admin</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="calendar" className="space-y-4">
@@ -93,6 +106,35 @@ export function DashboardContent({ session }: DashboardContentProps) {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="admin" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Admin Panel</CardTitle>
+                <CardDescription>
+                  Quick access to administrative functions
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <a href="/admin" className="block">
+                    <Button variant="outline" className="w-full justify-start">
+                      <Shield className="mr-2 h-4 w-4" />
+                      Admin Dashboard
+                    </Button>
+                  </a>
+                  <a href="/admin/users" className="block">
+                    <Button variant="outline" className="w-full justify-start">
+                      <Users className="mr-2 h-4 w-4" />
+                      Manage Users
+                    </Button>
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   )

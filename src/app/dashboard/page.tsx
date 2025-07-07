@@ -9,5 +9,8 @@ export default async function DashboardPage() {
     redirect("/auth/login")
   }
 
+  // Debug: Log session to see what's available
+  console.log("Dashboard session:", JSON.stringify(session, null, 2))
+
   return <DashboardContent session={session} />
 }
