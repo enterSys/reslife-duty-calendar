@@ -19,6 +19,7 @@ interface UserAvatarProps {
   user: {
     name?: string | null
     email?: string | null
+    allocatedBuilding?: string | null
   }
 }
 
@@ -34,25 +35,44 @@ export function UserAvatar({ user }: UserAvatarProps) {
     .toUpperCase()
     .slice(0, 2) || user.email?.charAt(0).toUpperCase() || "U"
 
+  // Format name to show only first name and last initial
+  const formatDisplayName = (name: string | null | undefined) => {
+    if (!name) return "User"
+    const parts = name.split(" ")
+    if (parts.length === 1) return parts[0]
+    return `${parts[0]} ${parts[parts.length - 1].charAt(0)}.`
+  }
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <motion.button
-          className="relative h-8 w-8 rounded-full"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Avatar className="h-8 w-8">
-            <AvatarImage
-              src={`https://avatar.vercel.sh/${user.email}`}
-              alt={user.name || user.email || "User"}
-            />
-            <AvatarFallback className="text-xs">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-        </motion.button>
-      </DropdownMenuTrigger>
+    <div className="flex items-center gap-3">
+      <div className="text-right">
+        <p className="text-sm font-medium leading-none">
+          {formatDisplayName(user.name)}
+        </p>
+        {user.allocatedBuilding && (
+          <p className="text-xs leading-none text-muted-foreground mt-0.5">
+            {user.allocatedBuilding}
+          </p>
+        )}
+      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <motion.button
+            className="relative h-8 w-8 rounded-full"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Avatar className="h-8 w-8">
+              <AvatarImage
+                src={`https://avatar.vercel.sh/${user.email}`}
+                alt={user.name || user.email || "User"}
+              />
+              <AvatarFallback className="text-xs">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+          </motion.button>
+        </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
@@ -62,6 +82,11 @@ export function UserAvatar({ user }: UserAvatarProps) {
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
+            {user.allocatedBuilding && (
+              <p className="text-xs leading-none text-muted-foreground">
+                {user.allocatedBuilding}
+              </p>
+            )}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -80,5 +105,6 @@ export function UserAvatar({ user }: UserAvatarProps) {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    </div>
   )
 }

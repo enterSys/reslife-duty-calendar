@@ -38,6 +38,7 @@ export default async function AdminUsersPage() {
     email: user.email,
     fullName: user.fullName,
     role: user.role,
+    allocatedBuilding: user.allocatedBuilding,
     createdAt: user.createdAt.toISOString(),
     shiftsCount: user._count.duties,
   }))

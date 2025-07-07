@@ -7,6 +7,7 @@ const updateUserSchema = z.object({
   role: z.enum(["user", "admin"]).optional(),
   fullName: z.string().optional(),
   email: z.string().email().optional(),
+  allocatedBuilding: z.string().optional(),
 })
 
 export async function PATCH(

@@ -51,6 +51,7 @@ interface User {
   role: string
   createdAt: string
   shiftsCount: number
+  allocatedBuilding: string | null
 }
 
 interface UserManagementProps {
@@ -61,6 +62,7 @@ interface EditingUser {
   fullName: string
   email: string
   role: string
+  allocatedBuilding: string
 }
 
 interface NewUser {
@@ -68,6 +70,7 @@ interface NewUser {
   email: string
   role: string
   password: string
+  allocatedBuilding: string
 }
 
 export function UserManagement({ initialUsers }: UserManagementProps) {
@@ -82,6 +85,7 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
     email: "",
     role: "user",
     password: "",
+    allocatedBuilding: "",
   })
   const queryClient = useQueryClient()
 
@@ -159,7 +163,7 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
     onSuccess: (createdUser) => {
       setUsers([{ ...createdUser, shiftsCount: 0 }, ...users])
       setShowAddDialog(false)
-      setNewUser({ fullName: "", email: "", role: "user", password: "" })
+      setNewUser({ fullName: "", email: "", role: "user", password: "", allocatedBuilding: "" })
       toast.success("User created successfully")
       queryClient.invalidateQueries({ queryKey: ["users"] })
     },
@@ -174,6 +178,7 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
       fullName: user.fullName || "",
       email: user.email,
       role: user.role,
+      allocatedBuilding: user.allocatedBuilding || "",
     })
   }
 
@@ -223,6 +228,7 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
+                <TableHead>Building</TableHead>
                 <TableHead>Shifts</TableHead>
                 <TableHead>Joined</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -297,6 +303,20 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
                           )}
                           {user.role}
                         </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editingId === user.id ? (
+                        <Input
+                          value={editingUser?.allocatedBuilding || ""}
+                          onChange={(e) => setEditingUser(prev => prev ? { ...prev, allocatedBuilding: e.target.value } : null)}
+                          className="h-8"
+                          placeholder="Building name"
+                        />
+                      ) : (
+                        <span className="text-sm">
+                          {user.allocatedBuilding || "Not set"}
+                        </span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -442,6 +462,18 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
                   </SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="building" className="text-right">
+                Building
+              </Label>
+              <Input
+                id="building"
+                value={newUser.allocatedBuilding}
+                onChange={(e) => setNewUser(prev => ({ ...prev, allocatedBuilding: e.target.value }))}
+                className="col-span-3"
+                placeholder="e.g., Ashburne & Sheavyn"
+              />
             </div>
           </div>
           <DialogFooter>

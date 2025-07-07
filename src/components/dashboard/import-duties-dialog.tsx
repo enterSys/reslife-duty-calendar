@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
-import { Upload, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Upload, AlertCircle, CheckCircle2, Clipboard, FileSpreadsheet } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -16,6 +16,9 @@ import {
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Table,
   TableBody,
@@ -55,6 +58,8 @@ export function ImportDutiesDialog() {
   const [open, setOpen] = useState(false)
   const [previewData, setPreviewData] = useState<typeof SAMPLE_DATA | null>(null)
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
+  const [pastedData, setPastedData] = useState("")
+  const [importMethod, setImportMethod] = useState<"sheets" | "paste">("paste")
   const queryClient = useQueryClient()
 
   const importMutation = useMutation({
@@ -89,6 +94,41 @@ export function ImportDutiesDialog() {
     setImportResult(null)
   }
 
+  const parsePastedData = (data: string) => {
+    try {
+      const lines = data.trim().split('\n')
+      const parsed = lines.map(line => {
+        // Split by tab or comma (common copy/paste formats)
+        const columns = line.split(/\t|,/)
+        if (columns.length >= 2) {
+          return {
+            date: columns[0].trim(),
+            memberName: columns[1].trim()
+          }
+        }
+        return null
+      }).filter(Boolean) as { date: string; memberName: string }[]
+      
+      if (parsed.length === 0) {
+        throw new Error("No valid data found")
+      }
+      
+      return parsed
+    } catch (error) {
+      throw new Error("Invalid data format. Please ensure data is in two columns: Date and Member Name")
+    }
+  }
+
+  const handlePastedDataPreview = () => {
+    try {
+      const parsed = parsePastedData(pastedData)
+      setPreviewData(parsed)
+      setImportResult(null)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to parse data")
+    }
+  }
+
   const handleImport = () => {
     if (previewData) {
       importMutation.mutate(previewData)
@@ -99,44 +139,96 @@ export function ImportDutiesDialog() {
     setOpen(false)
     setPreviewData(null)
     setImportResult(null)
+    setPastedData("")
+    setImportMethod("paste")
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          <Upload className="mr-2 h-4 w-4" />
-          Import from Sheets
+          <FileSpreadsheet className="mr-2 h-4 w-4" />
+          Import Duties
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Import Duties from Google Sheets</DialogTitle>
+          <DialogTitle>Import Duties</DialogTitle>
           <DialogDescription>
-            Import duty assignments from your Google Sheets document. 
-            Dates should be in column A and member names in column B.
+            Import duty assignments from Google Sheets or by pasting data directly.
           </DialogDescription>
         </DialogHeader>
 
         {!previewData && !importResult && (
-          <div className="space-y-4">
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Make sure your Google Sheet has:
-                <ul className="list-disc list-inside mt-2">
-                  <li>Dates in column A (format: M/D/YYYY)</li>
-                  <li>Member names in column B</li>
-                  <li>Member names match exactly with registered users</li>
-                </ul>
-              </AlertDescription>
-            </Alert>
-            <div className="flex justify-center">
-              <Button onClick={handleFetchData}>
-                Fetch Data from Google Sheets
-              </Button>
-            </div>
-          </div>
+          <Tabs value={importMethod} onValueChange={(value) => setImportMethod(value as "sheets" | "paste")}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="paste">
+                <Clipboard className="h-4 w-4 mr-2" />
+                Paste Data
+              </TabsTrigger>
+              <TabsTrigger value="sheets">
+                <Upload className="h-4 w-4 mr-2" />
+                Google Sheets
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="paste" className="space-y-4">
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Copy data from your spreadsheet and paste it below. Format:
+                  <ul className="list-disc list-inside mt-2">
+                    <li>Two columns: Date and Member Name</li>
+                    <li>Dates in format: M/D/YYYY (e.g., 1/15/2024)</li>
+                    <li>Member names must match registered users exactly</li>
+                    <li>Separate columns with tabs or commas</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+              
+              <div className="space-y-2">
+                <Label htmlFor="paste-data">Paste your data here:</Label>
+                <Textarea
+                  id="paste-data"
+                  placeholder="1/15/2024	John Doe
+1/16/2024	Jane Smith
+1/17/2024	Robert Johnson"
+                  value={pastedData}
+                  onChange={(e) => setPastedData(e.target.value)}
+                  className="min-h-[200px] font-mono text-sm"
+                />
+              </div>
+              
+              <div className="flex justify-center">
+                <Button 
+                  onClick={handlePastedDataPreview}
+                  disabled={!pastedData.trim()}
+                >
+                  Preview Pasted Data
+                </Button>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="sheets" className="space-y-4">
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Make sure your Google Sheet has:
+                  <ul className="list-disc list-inside mt-2">
+                    <li>Dates in column A (format: M/D/YYYY)</li>
+                    <li>Member names in column B</li>
+                    <li>Member names match exactly with registered users</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+              <div className="flex justify-center">
+                <Button onClick={handleFetchData}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Fetch Data from Google Sheets
+                </Button>
+              </div>
+            </TabsContent>
+          </Tabs>
         )}
 
         {previewData && !importResult && (
@@ -203,9 +295,12 @@ export function ImportDutiesDialog() {
             <>
               <Button
                 variant="outline"
-                onClick={() => setPreviewData(null)}
+                onClick={() => {
+                  setPreviewData(null)
+                  setPastedData("")
+                }}
               >
-                Cancel
+                Back
               </Button>
               <Button
                 onClick={handleImport}

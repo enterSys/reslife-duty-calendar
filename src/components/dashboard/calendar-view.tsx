@@ -173,17 +173,23 @@ export function CalendarView() {
                 whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
                 className={`
                   border rounded-lg p-1 sm:p-2 min-h-[80px] sm:min-h-[100px] relative
-                  transition-colors duration-200
+                  transition-all duration-200
                   ${isTodayDate ? "border-primary bg-primary/5" : ""}
-                  ${!isCurrentMonth ? "opacity-50" : ""}
-                  ${isWeekend(day) ? "bg-muted/20" : ""}
+                  ${!isCurrentMonth ? "opacity-30 bg-muted/10 text-muted-foreground" : ""}
+                  ${isCurrentMonth && isWeekend(day) ? "bg-muted/20" : ""}
+                  ${!isCurrentMonth ? "hover:opacity-40" : ""}
                 `}
               >
                 <div className="flex items-start justify-between mb-1">
-                  <span className={`text-sm font-medium ${isTodayDate ? "text-primary" : ""}`}>
+                  <span className={`text-sm font-medium ${
+                    isTodayDate ? "text-primary" : 
+                    !isCurrentMonth ? "text-muted-foreground/60" : ""
+                  }`}>
                     {format(day, "d")}
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className={`text-xs ${
+                    !isCurrentMonth ? "text-muted-foreground/40" : "text-muted-foreground"
+                  }`}>
                     {getShiftTimes(day)}
                   </span>
                 </div>
