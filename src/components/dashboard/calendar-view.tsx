@@ -1,14 +1,33 @@
 "use client"
 
 import { useState } from "react"
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, isWeekend, addWeeks, subWeeks } from "date-fns"
+import { 
+  format, 
+  startOfWeek, 
+  endOfWeek, 
+  eachDayOfInterval, 
+  isWeekend, 
+  addWeeks, 
+  subWeeks,
+  startOfMonth,
+  endOfMonth,
+  addMonths,
+  subMonths,
+  isSameMonth,
+  isToday
+} from "date-fns"
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useQuery } from "@tanstack/react-query"
-import { DutyCard } from "./duty-card"
-
-type ViewMode = "week" | "month"
+import { SwapRequestDialog } from "./swap-request-dialog"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface Duty {
   id: number
@@ -23,17 +42,23 @@ interface Duty {
 
 export function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [viewMode, setViewMode] = useState<ViewMode>("week")
+  const [selectedDuty, setSelectedDuty] = useState<Duty | null>(null)
+  const [showSwapDialog, setShowSwapDialog] = useState(false)
 
-  const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 })
-  const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 })
-  const days = eachDayOfInterval({ start: weekStart, end: weekEnd })
+  // Get the first day of the month and create a 4-week view
+  const monthStart = startOfMonth(currentDate)
+  const weekStart = startOfWeek(monthStart, { weekStartsOn: 1 })
+  // Get 4 weeks (28 days) from the start
+  const days = eachDayOfInterval({ 
+    start: weekStart, 
+    end: new Date(weekStart.getTime() + 27 * 24 * 60 * 60 * 1000) 
+  })
 
   const { data: duties, isLoading } = useQuery({
-    queryKey: ["duties", weekStart, weekEnd],
+    queryKey: ["duties", weekStart, days[days.length - 1]],
     queryFn: async () => {
       const response = await fetch(
-        `/api/duties?startDate=${weekStart.toISOString()}&endDate=${weekEnd.toISOString()}`
+        `/api/duties?startDate=${weekStart.toISOString()}&endDate=${days[days.length - 1].toISOString()}`
       )
       if (!response.ok) throw new Error("Failed to fetch duties")
       return response.json() as Promise<Duty[]>
@@ -48,104 +73,153 @@ export function CalendarView() {
     )
   }
 
-  const navigateWeek = (direction: "prev" | "next") => {
+  const navigateMonth = (direction: "prev" | "next") => {
     if (direction === "prev") {
-      setCurrentDate(subWeeks(currentDate, 1))
+      setCurrentDate(subMonths(currentDate, 1))
     } else {
-      setCurrentDate(addWeeks(currentDate, 1))
+      setCurrentDate(addMonths(currentDate, 1))
     }
   }
 
   const getShiftTimes = (date: Date) => {
     if (isWeekend(date)) {
-      return "11:00 AM - 11:00 AM (24 hours)"
+      return "24h"
     }
-    return "6:00 PM - 8:00 AM"
+    return "6pm-8am"
+  }
+
+  const handleDutyClick = (duty: Duty) => {
+    setSelectedDuty(duty)
+    setShowSwapDialog(true)
   }
 
   return (
-    <div className="space-y-4">
-      {/* Navigation Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigateWeek("prev")}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigateWeek("next")}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <h2 className="text-lg font-semibold">
-            {format(weekStart, "MMM d")} - {format(weekEnd, "MMM d, yyyy")}
-          </h2>
-        </div>
-        <Button
-          variant="outline"
-          onClick={() => setCurrentDate(new Date())}
-        >
-          Today
-        </Button>
-      </div>
-
-      {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-4">
-        {days.map((day) => {
-          const dayDuties = getDutiesForDate(day)
-          const isToday = format(day, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd")
-          
-          return (
-            <div
-              key={day.toISOString()}
-              className={`border rounded-lg p-4 min-h-[200px] ${
-                isToday ? "border-primary bg-primary/5" : ""
-              }`}
+    <TooltipProvider>
+      <div className="space-y-4">
+        {/* Navigation Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigateMonth("prev")}
             >
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-semibold">
-                      {format(day, "EEE")}
-                    </div>
-                    <div className="text-2xl">
-                      {format(day, "d")}
-                    </div>
-                  </div>
-                  {isWeekend(day) && (
-                    <Badge variant="secondary">Weekend</Badge>
-                  )}
-                </div>
-                
-                <div className="text-xs text-muted-foreground">
-                  {getShiftTimes(day)}
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigateMonth("next")}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <h2 className="text-xl font-semibold">
+              {format(currentDate, "MMMM yyyy")}
+            </h2>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => setCurrentDate(new Date())}
+          >
+            Today
+          </Button>
+        </div>
+
+        {/* Day headers */}
+        <div className="grid grid-cols-7 gap-2 mb-2">
+          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+            <div key={day} className="text-center text-sm font-medium text-muted-foreground">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar Grid */}
+        <div className="grid grid-cols-7 gap-1 sm:gap-2">
+          {days.map((day) => {
+            const dayDuties = getDutiesForDate(day)
+            const isCurrentMonth = isSameMonth(day, currentDate)
+            const isTodayDate = isToday(day)
+            
+            return (
+              <div
+                key={day.toISOString()}
+                className={`
+                  border rounded-lg p-1 sm:p-2 min-h-[80px] sm:min-h-[100px] relative
+                  ${isTodayDate ? "border-primary bg-primary/5" : ""}
+                  ${!isCurrentMonth ? "opacity-50" : ""}
+                  ${isWeekend(day) ? "bg-muted/20" : ""}
+                `}
+              >
+                <div className="flex items-start justify-between mb-1">
+                  <span className={`text-sm font-medium ${isTodayDate ? "text-primary" : ""}`}>
+                    {format(day, "d")}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {getShiftTimes(day)}
+                  </span>
                 </div>
 
                 {isLoading ? (
-                  <div className="text-sm text-muted-foreground">Loading...</div>
+                  <div className="flex justify-center">
+                    <div className="animate-pulse bg-muted rounded-full w-8 h-8" />
+                  </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="flex flex-wrap gap-1">
                     {dayDuties.length > 0 ? (
                       dayDuties.map((duty) => (
-                        <DutyCard key={duty.id} duty={duty} />
+                        <Tooltip key={duty.id}>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => handleDutyClick(duty)}
+                              className="hover:scale-110 transition-transform"
+                            >
+                              <Avatar className="h-7 w-7 sm:h-8 sm:w-8 cursor-pointer">
+                                <AvatarImage 
+                                  src={`https://avatar.vercel.sh/${duty.user.email}`} 
+                                  alt={duty.user.fullName}
+                                />
+                                <AvatarFallback className="text-[10px] sm:text-xs">
+                                  {duty.user.fullName
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                    .toUpperCase()
+                                    .slice(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <div className="text-sm">
+                              <p className="font-medium">{duty.user.fullName}</p>
+                              <p className="text-xs text-muted-foreground">{duty.user.email}</p>
+                              <p className="text-xs">Click to request swap</p>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
                       ))
                     ) : (
-                      <div className="text-sm text-muted-foreground italic">
-                        No duties assigned
+                      <div className="text-xs text-muted-foreground italic w-full text-center">
+                        Unassigned
                       </div>
                     )}
                   </div>
                 )}
               </div>
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
+
+        {/* Swap Dialog */}
+        {selectedDuty && (
+          <SwapRequestDialog
+            open={showSwapDialog}
+            onOpenChange={setShowSwapDialog}
+            duty={selectedDuty}
+          />
+        )}
       </div>
-    </div>
+    </TooltipProvider>
   )
 }
