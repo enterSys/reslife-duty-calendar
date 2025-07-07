@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { 
   format, 
   startOfWeek, 
@@ -97,33 +98,50 @@ export function CalendarView() {
     <TooltipProvider>
       <div className="space-y-4">
         {/* Navigation Header */}
-        <div className="flex items-center justify-between">
+        <motion.div 
+          className="flex items-center justify-between"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => navigateMonth("prev")}
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navigateMonth("prev")}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navigateMonth("next")}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </motion.div>
+            <motion.h2 
+              className="text-xl font-semibold"
+              key={format(currentDate, "MMMM yyyy")}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
             >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => navigateMonth("next")}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-            <h2 className="text-xl font-semibold">
               {format(currentDate, "MMMM yyyy")}
-            </h2>
+            </motion.h2>
           </div>
-          <Button
-            variant="outline"
-            onClick={() => setCurrentDate(new Date())}
-          >
-            Today
-          </Button>
-        </div>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="outline"
+              onClick={() => setCurrentDate(new Date())}
+            >
+              Today
+            </Button>
+          </motion.div>
+        </motion.div>
 
         {/* Day headers */}
         <div className="grid grid-cols-7 gap-2 mb-2">
@@ -135,17 +153,27 @@ export function CalendarView() {
         </div>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-1 sm:gap-2">
-          {days.map((day) => {
+        <motion.div 
+          className="grid grid-cols-7 gap-1 sm:gap-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          {days.map((day, index) => {
             const dayDuties = getDutiesForDate(day)
             const isCurrentMonth = isSameMonth(day, currentDate)
             const isTodayDate = isToday(day)
             
             return (
-              <div
+              <motion.div
                 key={day.toISOString()}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: index * 0.02 }}
+                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
                 className={`
                   border rounded-lg p-1 sm:p-2 min-h-[80px] sm:min-h-[100px] relative
+                  transition-colors duration-200
                   ${isTodayDate ? "border-primary bg-primary/5" : ""}
                   ${!isCurrentMonth ? "opacity-50" : ""}
                   ${isWeekend(day) ? "bg-muted/20" : ""}
@@ -170,9 +198,11 @@ export function CalendarView() {
                       dayDuties.map((duty) => (
                         <Tooltip key={duty.id}>
                           <TooltipTrigger asChild>
-                            <button
+                            <motion.button
                               onClick={() => handleDutyClick(duty)}
-                              className="hover:scale-110 transition-transform"
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.95 }}
+                              transition={{ duration: 0.2 }}
                             >
                               <Avatar className="h-7 w-7 sm:h-8 sm:w-8 cursor-pointer">
                                 <AvatarImage 
@@ -188,7 +218,7 @@ export function CalendarView() {
                                     .slice(0, 2)}
                                 </AvatarFallback>
                               </Avatar>
-                            </button>
+                            </motion.button>
                           </TooltipTrigger>
                           <TooltipContent>
                             <div className="text-sm">
@@ -206,10 +236,10 @@ export function CalendarView() {
                     )}
                   </div>
                 )}
-              </div>
+              </motion.div>
             )
           })}
-        </div>
+        </motion.div>
 
         {/* Swap Dialog */}
         {selectedDuty && (
