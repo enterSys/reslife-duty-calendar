@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
   format, 
@@ -46,14 +46,16 @@ export function CalendarView() {
   const [selectedDuty, setSelectedDuty] = useState<Duty | null>(null)
   const [showSwapDialog, setShowSwapDialog] = useState(false)
 
-  // Get the first day of the month and create a 4-week view
-  const monthStart = startOfMonth(currentDate)
-  const weekStart = startOfWeek(monthStart, { weekStartsOn: 1 })
-  // Get 4 weeks (28 days) from the start
-  const days = eachDayOfInterval({ 
-    start: weekStart, 
-    end: new Date(weekStart.getTime() + 27 * 24 * 60 * 60 * 1000) 
-  })
+  // Memoize expensive calculations
+  const { monthStart, weekStart, days } = useMemo(() => {
+    const monthStart = startOfMonth(currentDate)
+    const weekStart = startOfWeek(monthStart, { weekStartsOn: 1 })
+    const days = eachDayOfInterval({ 
+      start: weekStart, 
+      end: new Date(weekStart.getTime() + 27 * 24 * 60 * 60 * 1000) 
+    })
+    return { monthStart, weekStart, days }
+  }, [currentDate])
 
   const { data: duties, isLoading } = useQuery({
     queryKey: ["duties", weekStart, days[days.length - 1]],
@@ -66,86 +68,86 @@ export function CalendarView() {
     },
   })
 
-  const getDutiesForDate = (date: Date) => {
-    if (!duties) return []
-    const dateStr = format(date, "yyyy-MM-dd")
-    return duties.filter(duty => 
-      format(new Date(duty.dutyDate), "yyyy-MM-dd") === dateStr
-    )
-  }
+  // Memoize duties by date for better performance
+  const dutiesByDate = useMemo(() => {
+    if (!duties) return new Map()
+    
+    const map = new Map<string, Duty[]>()
+    duties.forEach(duty => {
+      const dateStr = format(new Date(duty.dutyDate), "yyyy-MM-dd")
+      if (!map.has(dateStr)) {
+        map.set(dateStr, [])
+      }
+      map.get(dateStr)!.push(duty)
+    })
+    return map
+  }, [duties])
 
-  const navigateMonth = (direction: "prev" | "next") => {
+  const getDutiesForDate = useCallback((date: Date) => {
+    const dateStr = format(date, "yyyy-MM-dd")
+    return dutiesByDate.get(dateStr) || []
+  }, [dutiesByDate])
+
+  const navigateMonth = useCallback((direction: "prev" | "next") => {
     if (direction === "prev") {
       setCurrentDate(subMonths(currentDate, 1))
     } else {
       setCurrentDate(addMonths(currentDate, 1))
     }
-  }
+  }, [currentDate])
 
-  const getShiftTimes = (date: Date) => {
+  const getShiftTimes = useCallback((date: Date) => {
     if (isWeekend(date)) {
       return "24h"
     }
     return "6pm-8am"
-  }
+  }, [])
 
-  const handleDutyClick = (duty: Duty) => {
+  const handleDutyClick = useCallback((duty: Duty) => {
     setSelectedDuty(duty)
     setShowSwapDialog(true)
-  }
+  }, [])
+
+  // Memoize day headers
+  const dayHeaders = useMemo(() => 
+    ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], []
+  )
 
   return (
     <TooltipProvider>
       <div className="space-y-4">
         {/* Navigation Header */}
-        <motion.div 
-          className="flex items-center justify-between"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => navigateMonth("prev")}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => navigateMonth("next")}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </motion.div>
-            <motion.h2 
-              className="text-xl font-semibold"
-              key={format(currentDate, "MMMM yyyy")}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {format(currentDate, "MMMM yyyy")}
-            </motion.h2>
-          </div>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               variant="outline"
-              onClick={() => setCurrentDate(new Date())}
+              size="icon"
+              onClick={() => navigateMonth("prev")}
             >
-              Today
+              <ChevronLeft className="h-4 w-4" />
             </Button>
-          </motion.div>
-        </motion.div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigateMonth("next")}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <h2 className="text-xl font-semibold">
+              {format(currentDate, "MMMM yyyy")}
+            </h2>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => setCurrentDate(new Date())}
+          >
+            Today
+          </Button>
+        </div>
 
         {/* Day headers */}
         <div className="grid grid-cols-7 gap-2 mb-2">
-          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+          {dayHeaders.map((day) => (
             <div key={day} className="text-center text-sm font-medium text-muted-foreground">
               {day}
             </div>
@@ -153,27 +155,18 @@ export function CalendarView() {
         </div>
 
         {/* Calendar Grid */}
-        <motion.div 
-          className="grid grid-cols-7 gap-1 sm:gap-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          {days.map((day, index) => {
+        <div className="grid grid-cols-7 gap-1 sm:gap-2">
+          {days.map((day) => {
             const dayDuties = getDutiesForDate(day)
             const isCurrentMonth = isSameMonth(day, currentDate)
             const isTodayDate = isToday(day)
             
             return (
-              <motion.div
+              <div
                 key={day.toISOString()}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: index * 0.02 }}
-                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
                 className={`
                   border rounded-lg p-1 sm:p-2 min-h-[80px] sm:min-h-[100px] relative
-                  transition-all duration-200
+                  transition-all duration-200 hover:scale-[1.02]
                   ${isTodayDate ? "border-primary bg-primary/5" : ""}
                   ${!isCurrentMonth ? "opacity-30 bg-muted/10 text-muted-foreground" : ""}
                   ${isCurrentMonth && isWeekend(day) ? "bg-muted/20" : ""}
@@ -201,14 +194,12 @@ export function CalendarView() {
                 ) : (
                   <div className="flex flex-wrap gap-1">
                     {dayDuties.length > 0 ? (
-                      dayDuties.map((duty) => (
+                      dayDuties.map((duty: Duty) => (
                         <Tooltip key={duty.id}>
                           <TooltipTrigger asChild>
-                            <motion.button
+                            <button
                               onClick={() => handleDutyClick(duty)}
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.95 }}
-                              transition={{ duration: 0.2 }}
+                              className="transition-transform hover:scale-110 active:scale-95"
                             >
                               <Avatar className="h-7 w-7 sm:h-8 sm:w-8 cursor-pointer">
                                 <AvatarImage 
@@ -218,13 +209,13 @@ export function CalendarView() {
                                 <AvatarFallback className="text-[10px] sm:text-xs">
                                   {duty.user.fullName
                                     .split(" ")
-                                    .map((n) => n[0])
+                                    .map((n: string) => n[0])
                                     .join("")
                                     .toUpperCase()
                                     .slice(0, 2)}
                                 </AvatarFallback>
                               </Avatar>
-                            </motion.button>
+                            </button>
                           </TooltipTrigger>
                           <TooltipContent>
                             <div className="text-sm">
@@ -242,10 +233,10 @@ export function CalendarView() {
                     )}
                   </div>
                 )}
-              </motion.div>
+              </div>
             )
           })}
-        </motion.div>
+        </div>
 
         {/* Swap Dialog */}
         {selectedDuty && (

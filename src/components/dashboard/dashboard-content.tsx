@@ -3,17 +3,33 @@
 import { useState } from "react"
 import { Session } from "next-auth"
 import { motion, AnimatePresence } from "framer-motion"
+import { Calendar, Users, FileSpreadsheet, ArrowLeftRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Shield, Users } from "lucide-react"
-import { CalendarView } from "./calendar-view"
-import { MyDuties } from "./my-duties"
-import { SwapRequests } from "./swap-requests"
-import { TeamMembers } from "./team-members"
-import { ImportDutiesDialog } from "./import-duties-dialog"
-import { ModeToggle } from "@/components/ui/mode-toggle"
-import { UserAvatar } from "@/components/ui/user-avatar"
+import dynamic from "next/dynamic"
+
+// Dynamic imports for better performance
+const CalendarView = dynamic(() => import("./calendar-view").then(mod => ({ default: mod.CalendarView })), {
+  loading: () => <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>,
+  ssr: false
+})
+
+const MyDuties = dynamic(() => import("./my-duties").then(mod => ({ default: mod.MyDuties })), {
+  loading: () => <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>
+})
+
+const SwapRequests = dynamic(() => import("./swap-requests").then(mod => ({ default: mod.SwapRequests })), {
+  loading: () => <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>
+})
+
+const TeamMembers = dynamic(() => import("./team-members").then(mod => ({ default: mod.TeamMembers })), {
+  loading: () => <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>
+})
+
+const ImportDutiesDialog = dynamic(() => import("./import-duties-dialog").then(mod => ({ default: mod.ImportDutiesDialog })), {
+  loading: () => <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>
+})
 
 interface DashboardContentProps {
   session: Session
@@ -21,193 +37,143 @@ interface DashboardContentProps {
 
 export function DashboardContent({ session }: DashboardContentProps) {
   const [activeTab, setActiveTab] = useState("calendar")
-  const isAdmin = session.user?.role === "admin"
 
-  // Debug: Log session details
-  console.log("Client session:", {
-    user: session.user,
-    role: session.user?.role,
-    isAdmin
-  })
+  const tabs = [
+    {
+      value: "calendar",
+      label: "Calendar",
+      icon: Calendar,
+      description: "View and manage duty assignments",
+    },
+    {
+      value: "my-duties",
+      label: "My Duties",
+      icon: Calendar,
+      description: "Your upcoming and past duties",
+    },
+    {
+      value: "swaps",
+      label: "Swap Requests",
+      icon: ArrowLeftRight,
+      description: "Manage duty swap requests",
+    },
+    {
+      value: "team",
+      label: "Team Members",
+      icon: Users,
+      description: "View team members and their duties",
+    },
+  ]
 
   return (
-    <motion.div 
-      className="container mx-auto py-6 space-y-6"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <motion.div 
-        className="flex justify-between items-center"
-        initial={{ opacity: 0, y: -10 }}
+    <div className="space-y-6">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
+        transition={{ duration: 0.5 }}
+        className="flex items-center justify-between"
       >
         <div>
-          <h1 className="text-3xl font-bold">ResLife Duty Calendar</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Duty Calendar</h1>
           <p className="text-muted-foreground">
-            Welcome back, {session.user?.name || session.user?.email}!
-            {session.user?.role && (
-              <span className="ml-2 text-sm">({session.user.role})</span>
-            )}
+            Manage your residential life duties efficiently
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <ModeToggle />
-          <UserAvatar user={session.user} />
-        </div>
+        <ImportDutiesDialog />
       </motion.div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.2 }}
-        >
-          <TabsList className={`grid w-full ${isAdmin ? "grid-cols-5" : "grid-cols-4"}`}>
-            <TabsTrigger value="calendar">Calendar</TabsTrigger>
-            <TabsTrigger value="my-duties">My Duties</TabsTrigger>
-            <TabsTrigger value="swaps">Swap Requests</TabsTrigger>
-            <TabsTrigger value="team">Team</TabsTrigger>
-            {isAdmin && <TabsTrigger value="admin">Admin</TabsTrigger>}
+      {/* Quick Stats */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+      >
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Duties</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">24</div>
+            <p className="text-xs text-muted-foreground">
+              +2 from last month
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Team Members</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">12</div>
+            <p className="text-xs text-muted-foreground">
+              Active members
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Swaps</CardTitle>
+            <ArrowLeftRight className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">3</div>
+            <p className="text-xs text-muted-foreground">
+              Awaiting approval
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">This Month</CardTitle>
+            <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">8</div>
+            <p className="text-xs text-muted-foreground">
+              Duties scheduled
+            </p>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Main Content */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="space-y-6"
+      >
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="grid w-full grid-cols-4">
+            {tabs.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2">
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
-        </motion.div>
 
-        <TabsContent value="calendar" className="space-y-4">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle>Duty Calendar</CardTitle>
-                <CardDescription>
-                  View the team rota schedule. Weekday shifts: 6pm-8am, Weekend shifts: 11am-11am (24hrs)
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <CalendarView />
-              </CardContent>
-            </Card>
-            {isAdmin && (
+          <AnimatePresence mode="wait">
+            <TabsContent key={activeTab} value={activeTab} className="space-y-4">
               <motion.div
-                className="flex justify-center pt-4"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
               >
-                <ImportDutiesDialog />
+                                 {activeTab === "calendar" && <CalendarView />}
+                 {activeTab === "my-duties" && <MyDuties userId={session.user.id} />}
+                 {activeTab === "swaps" && <SwapRequests userId={session.user.id} />}
+                 {activeTab === "team" && <TeamMembers />}
               </motion.div>
-            )}
-          </motion.div>
-        </TabsContent>
-
-        <TabsContent value="my-duties" className="space-y-4">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle>My Duties</CardTitle>
-                <CardDescription>
-                  View and manage your assigned duties
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <MyDuties userId={session.user.id} />
-              </CardContent>
-            </Card>
-          </motion.div>
-        </TabsContent>
-
-        <TabsContent value="swaps" className="space-y-4">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle>Swap Requests</CardTitle>
-                <CardDescription>
-                  Manage duty swap requests with other team members
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <SwapRequests userId={session.user.id} />
-              </CardContent>
-            </Card>
-          </motion.div>
-        </TabsContent>
-
-        <TabsContent value="team" className="space-y-4">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle>Team Members</CardTitle>
-                <CardDescription>
-                  View all team members and their contact information
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <TeamMembers />
-              </CardContent>
-            </Card>
-          </motion.div>
-        </TabsContent>
-
-        {isAdmin && (
-          <TabsContent value="admin" className="space-y-4">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Admin Panel</CardTitle>
-                  <CardDescription>
-                    Quick access to administrative functions
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <motion.a 
-                      href="/admin" 
-                      className="block"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Button variant="outline" className="w-full justify-start">
-                        <Shield className="mr-2 h-4 w-4" />
-                        Admin Dashboard
-                      </Button>
-                    </motion.a>
-                    <motion.a 
-                      href="/admin/users" 
-                      className="block"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Button variant="outline" className="w-full justify-start">
-                        <Users className="mr-2 h-4 w-4" />
-                        Manage Users
-                      </Button>
-                    </motion.a>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </TabsContent>
-        )}
-      </Tabs>
-    </motion.div>
+            </TabsContent>
+          </AnimatePresence>
+        </Tabs>
+      </motion.div>
+    </div>
   )
 }
