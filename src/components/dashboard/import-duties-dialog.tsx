@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { format, parse, isValid } from "date-fns"
 import { Upload, AlertCircle, CheckCircle2, Clipboard, FileSpreadsheet } from "lucide-react"
@@ -87,14 +87,15 @@ export function ImportDutiesDialog() {
     },
   })
 
-  const handleFetchData = () => {
+  const handleFetchData = useCallback(() => {
     // In production, this would fetch from Google Sheets API
     // For now, we'll use sample data
     setPreviewData(SAMPLE_DATA)
     setImportResult(null)
-  }
+  }, [])
 
-  const parseDate = (dateString: string): string => {
+  // Memoize date parsing function
+  const parseDate = useCallback((dateString: string): string => {
     // Remove day names (Mon, Tue, etc.) if present
     let cleanDate = dateString.replace(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+/i, '').trim()
     
@@ -132,9 +133,9 @@ export function ImportDutiesDialog() {
     }
     
     throw new Error(`Invalid date format: ${dateString}`)
-  }
+  }, [])
 
-  const parsePastedData = (data: string) => {
+  const parsePastedData = useCallback((data: string) => {
     try {
       const lines = data.trim().split('\n')
       const parsed = lines.map((line, index) => {
@@ -168,9 +169,9 @@ export function ImportDutiesDialog() {
       }
       throw new Error("Invalid data format. Please ensure data is in two columns: Date and Member Name")
     }
-  }
+  }, [parseDate])
 
-  const handlePastedDataPreview = () => {
+  const handlePastedDataPreview = useCallback(() => {
     try {
       const parsed = parsePastedData(pastedData)
       setPreviewData(parsed)
@@ -178,21 +179,40 @@ export function ImportDutiesDialog() {
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to parse data")
     }
-  }
+  }, [pastedData, parsePastedData])
 
-  const handleImport = () => {
+  const handleImport = useCallback(() => {
     if (previewData) {
       importMutation.mutate(previewData)
     }
-  }
+  }, [previewData, importMutation])
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setOpen(false)
     setPreviewData(null)
     setImportResult(null)
     setPastedData("")
     setImportMethod("paste")
-  }
+  }, [])
+
+  // Memoize preview table rows
+  const previewTableRows = useMemo(() => {
+    if (!previewData) return []
+    
+    return previewData.map((item, index) => {
+      const date = new Date(item.date)
+      const isWeekend = date.getDay() === 0 || date.getDay() === 6
+      return (
+        <TableRow key={index}>
+          <TableCell>{item.date}</TableCell>
+          <TableCell>{item.memberName}</TableCell>
+          <TableCell>
+            {isWeekend ? "Weekend (24h)" : "Weekday (6pm-8am)"}
+          </TableCell>
+        </TableRow>
+      )
+    })
+  }, [previewData])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -303,19 +323,7 @@ Wed 09/01/2025	Robert Johnson"
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {previewData.map((item, index) => {
-                    const date = new Date(item.date)
-                    const isWeekend = date.getDay() === 0 || date.getDay() === 6
-                    return (
-                      <TableRow key={index}>
-                        <TableCell>{item.date}</TableCell>
-                        <TableCell>{item.memberName}</TableCell>
-                        <TableCell>
-                          {isWeekend ? "Weekend (24h)" : "Weekday (6pm-8am)"}
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
+                  {previewTableRows}
                 </TableBody>
               </Table>
             </ScrollArea>
