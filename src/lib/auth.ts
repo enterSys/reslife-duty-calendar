@@ -28,7 +28,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         try {
           // Check if database is available
-          if (!process.env.DATABASE_URL) {
+          if (!process.env?.DATABASE_URL) {
             console.error("DATABASE_URL not configured")
             return null
           }
@@ -90,5 +90,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   // Add better error handling for production
-  debug: process.env.NODE_ENV === "development",
+  debug: process.env?.NODE_ENV === "development",
 })

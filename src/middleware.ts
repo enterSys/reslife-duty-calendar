@@ -2,33 +2,8 @@ import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-// Add Node.js types for middleware
-declare global {
-  var process: {
-    env: {
-      NODE_ENV?: string
-      DATABASE_URL?: string
-      POSTGRES_URL_NON_POOLING?: string
-      NEXTAUTH_SECRET?: string
-      AUTH_SECRET?: string
-    }
-  }
-}
-
 export default auth((req) => {
   const pathname = req.nextUrl.pathname
-  
-  // Check if we're in a production environment and have required env vars
-  const isProduction = process.env.NODE_ENV === "production"
-  const hasDatabaseUrl = !!process.env.DATABASE_URL
-  const hasAuthSecret = !!process.env.NEXTAUTH_SECRET || !!process.env.AUTH_SECRET
-  
-  // If we're in production and missing critical environment variables,
-  // allow access to prevent middleware failures
-  if (isProduction && (!hasDatabaseUrl || !hasAuthSecret)) {
-    console.warn("Missing critical environment variables in production")
-    return NextResponse.next()
-  }
 
   try {
     const isAuth = !!req.auth
