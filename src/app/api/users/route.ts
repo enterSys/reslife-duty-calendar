@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
-import bcrypt from "bcrypt"
+import bcryptjs from "bcryptjs"
 
 const createUserSchema = z.object({
   email: z.string().email(),
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
     }
 
     // Hash the password
-    const hashedPassword = await bcrypt.hash(data.password, 12)
+    const hashedPassword = await bcryptjs.hash(data.password, 12)
 
     const newUser = await prisma.user.create({
       data: {
