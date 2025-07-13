@@ -27,6 +27,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         try {
+          // Check if database is available
+          if (!process.env?.DATABASE_URL) {
+            console.error("DATABASE_URL not configured")
+            return null
+          }
+
           const { email, password } = loginSchema.parse(credentials)
 
           const user = await prisma.user.findUnique({
@@ -59,6 +65,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             allocatedBuilding: user.allocatedBuilding,
           }
         } catch (error) {
+          console.error("Auth error:", error)
           return null
         }
       },
@@ -82,4 +89,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session
     },
   },
+  // Add better error handling for production
+  debug: process.env?.NODE_ENV === "development",
 })

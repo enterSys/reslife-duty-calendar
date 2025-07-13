@@ -17,7 +17,7 @@ export async function GET() {
       {
         status: "error",
         database: "disconnected",
-        error: process.env.NODE_ENV === "development" ? String(error) : "Database connection failed",
+        error: process.env?.NODE_ENV === "development" ? String(error) : "Database connection failed",
         timestamp: new Date().toISOString(),
       },
       { status: 503 }
