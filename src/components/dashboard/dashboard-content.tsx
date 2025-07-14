@@ -66,7 +66,7 @@ export function DashboardContent({ session }: DashboardContentProps) {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
