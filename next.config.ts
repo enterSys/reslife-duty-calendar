@@ -25,7 +25,12 @@ const nextConfig: NextConfig = {
       '@radix-ui/react-tooltip',
       'lucide-react',
       'date-fns',
+      'framer-motion',
+      '@tanstack/react-query',
+      'react-hook-form',
+      'zod',
     ],
+    serverComponentsExternalPackages: ['prisma'],
   },
   
   // Webpack optimizations
@@ -44,6 +49,18 @@ const nextConfig: NextConfig = {
             test: /[\\/]src[\\/]components[\\/]ui[\\/]/,
             name: 'ui',
             chunks: 'all',
+          },
+          auth: {
+            test: /[\\/]node_modules[\\/](next-auth|@auth)[\\/]/,
+            name: 'auth',
+            chunks: 'all',
+            priority: 10,
+          },
+          query: {
+            test: /[\\/]node_modules[\\/]@tanstack[\\/]/,
+            name: 'query',
+            chunks: 'all',
+            priority: 10,
           },
         },
       };
