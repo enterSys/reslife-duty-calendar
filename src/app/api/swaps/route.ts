@@ -58,7 +58,12 @@ export async function GET(request: Request) {
       },
     })
 
-    return NextResponse.json(swaps)
+    return NextResponse.json(swaps, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=180, stale-while-revalidate=300',
+        'CDN-Cache-Control': 'public, s-maxage=180',
+      },
+    })
   } catch (error) {
     console.error("Error fetching swaps:", error)
     return NextResponse.json(
