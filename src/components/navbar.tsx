@@ -7,7 +7,7 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 
 export function Navbar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   // Hide navbar on login and register pages
   if (pathname === "/auth/login" || pathname === "/auth/register") {
