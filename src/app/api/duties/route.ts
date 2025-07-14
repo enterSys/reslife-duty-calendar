@@ -36,7 +36,11 @@ export async function GET(request: Request) {
 
     const duties = await prisma.duty.findMany({
       where,
-      include: {
+      select: {
+        id: true,
+        dutyDate: true,
+        dutyType: true,
+        notes: true,
         user: {
           select: {
             id: true,
@@ -56,7 +60,12 @@ export async function GET(request: Request) {
       dutyType: duty.dutyType || (new Date(duty.dutyDate).getDay() === 0 || new Date(duty.dutyDate).getDay() === 6 ? "weekend" : "weekday"),
     }))
 
-    return NextResponse.json(dutiesWithType)
+    return NextResponse.json(dutiesWithType, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        'CDN-Cache-Control': 'public, s-maxage=300',
+      },
+    })
   } catch (error) {
     console.error("Error fetching duties:", error)
     return NextResponse.json(
