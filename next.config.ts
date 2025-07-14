@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
       'react-hook-form',
       'zod',
     ],
-    serverComponentsExternalPackages: ['prisma'],
+    serverExternalPackages: ['prisma'],
   },
   
   // Webpack optimizations
