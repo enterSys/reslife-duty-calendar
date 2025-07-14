@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Users, Calendar, Shield, FileSpreadsheet } from "lucide-react"
 
+// Force dynamic rendering to prevent build-time database queries
+export const dynamic = 'force-dynamic'
+
 export default async function AdminPage() {
   const session = await auth()
 

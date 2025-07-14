@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 
+// Force dynamic rendering to prevent build-time database queries
+export const dynamic = 'force-dynamic'
+
 interface GrantAccessPageProps {
   searchParams: Promise<{ email?: string; token?: string }>
 }

@@ -3,6 +3,9 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { UserManagement } from "@/components/admin/user-management"
 
+// Force dynamic rendering to prevent build-time database queries
+export const dynamic = 'force-dynamic'
+
 export default async function AdminUsersPage() {
   const session = await auth()
 
