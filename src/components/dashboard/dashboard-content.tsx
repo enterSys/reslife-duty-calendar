@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { Session } from "next-auth"
 import { motion, AnimatePresence } from "framer-motion"
 import { Calendar, Users, FileSpreadsheet, ArrowLeftRight } from "lucide-react"
@@ -36,20 +37,28 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ session }: DashboardContentProps) {
-  const [activeTab, setActiveTab] = useState("calendar")
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState("my-duties")
+
+  useEffect(() => {
+    const tab = searchParams.get("tab")
+    if (tab) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   const tabs = [
-    {
-      value: "calendar",
-      label: "Calendar",
-      icon: Calendar,
-      description: "View and manage duty assignments",
-    },
     {
       value: "my-duties",
       label: "My Duties",
       icon: Calendar,
       description: "Your upcoming and past duties",
+    },
+    {
+      value: "calendar",
+      label: "Calendar",
+      icon: Calendar,
+      description: "View and manage duty assignments",
     },
     {
       value: "swaps",
@@ -159,11 +168,11 @@ export function DashboardContent({ session }: DashboardContentProps) {
               transition={{ duration: 0.15 }}
               className="mt-6"
             >
-              <TabsContent value="calendar" className="mt-0">
-                <CalendarView />
-              </TabsContent>
               <TabsContent value="my-duties" className="mt-0">
                 <MyDuties userId={session.user.id} />
+              </TabsContent>
+              <TabsContent value="calendar" className="mt-0">
+                <CalendarView />
               </TabsContent>
               <TabsContent value="swaps" className="mt-0">
                 <SwapRequests userId={session.user.id} />

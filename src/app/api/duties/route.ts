@@ -7,6 +7,7 @@ const createDutySchema = z.object({
   dutyDate: z.string().transform((str) => new Date(str)),
   dutyType: z.string(),
   notes: z.string().optional(),
+  userId: z.number().optional(),
 })
 
 export async function GET(request: Request) {
@@ -83,11 +84,11 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json()
-    const { dutyDate, dutyType, notes } = createDutySchema.parse(body)
+    const { dutyDate, dutyType, notes, userId } = createDutySchema.parse(body)
 
     const duty = await prisma.duty.create({
       data: {
-        userId: parseInt(session.user.id),
+        userId: userId || parseInt(session.user.id),
         dutyDate,
         dutyType,
         notes,

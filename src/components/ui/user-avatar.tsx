@@ -4,6 +4,7 @@ import * as React from "react"
 import { LogOut, Settings, User } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { motion } from "framer-motion"
+import { useRouter } from "next/navigation"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -24,8 +25,18 @@ interface UserAvatarProps {
 }
 
 export function UserAvatar({ user }: UserAvatarProps) {
+  const router = useRouter()
+  
   const handleSignOut = () => {
     signOut({ callbackUrl: "/auth/login" })
+  }
+  
+  const handleProfileClick = () => {
+    router.push("/dashboard?tab=my-duties")
+  }
+  
+  const handleSettingsClick = () => {
+    router.push("/dashboard?tab=team")
   }
 
   const initials = user.name
@@ -90,11 +101,11 @@ export function UserAvatar({ user }: UserAvatarProps) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleProfileClick}>
           <User className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleSettingsClick}>
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>
