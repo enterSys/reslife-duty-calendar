@@ -163,10 +163,10 @@ export function DashboardContent({ session }: DashboardContentProps) {
                 <CalendarView />
               </TabsContent>
               <TabsContent value="my-duties" className="mt-0">
-                <MyDuties />
+                <MyDuties userId={session.user.id} />
               </TabsContent>
               <TabsContent value="swaps" className="mt-0">
-                <SwapRequests />
+                <SwapRequests userId={session.user.id} />
               </TabsContent>
               <TabsContent value="team" className="mt-0">
                 <TeamMembers />
