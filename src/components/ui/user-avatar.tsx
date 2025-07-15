@@ -58,9 +58,9 @@ export function UserAvatar({ user }: UserAvatarProps) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <motion.button
-            className="relative h-8 w-8 rounded-full"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="flex items-center gap-2 text-left"
           >
             <Avatar className="h-8 w-8">
               <AvatarImage

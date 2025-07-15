@@ -67,27 +67,21 @@ export function DashboardContent({ session }: DashboardContentProps) {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-      {/* Header */}
+      {/* Import Actions */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex items-center justify-between"
+        transition={{ duration: 0.2 }}
+        className="flex justify-end"
       >
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Duty Calendar</h1>
-          <p className="text-muted-foreground">
-            Manage your residential life duties efficiently
-          </p>
-        </div>
         <ImportDutiesDialog />
       </motion.div>
 
       {/* Quick Stats */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
+        transition={{ duration: 0.2, delay: 0.05 }}
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
       >
         <Card>
@@ -104,13 +98,13 @@ export function DashboardContent({ session }: DashboardContentProps) {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Team Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Completed</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12</div>
             <p className="text-xs text-muted-foreground">
-              Active members
+              50% completion rate
             </p>
           </CardContent>
         </Card>
@@ -128,13 +122,13 @@ export function DashboardContent({ session }: DashboardContentProps) {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Month</CardTitle>
-            <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Team Members</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">8</div>
             <p className="text-xs text-muted-foreground">
-              Duties scheduled
+              Active staff
             </p>
           </CardContent>
         </Card>
@@ -142,35 +136,42 @@ export function DashboardContent({ session }: DashboardContentProps) {
 
       {/* Main Content */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="space-y-6"
+        transition={{ duration: 0.2, delay: 0.1 }}
       >
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             {tabs.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2">
                 <tab.icon className="h-4 w-4" />
-                {tab.label}
+                <span className="hidden sm:inline">{tab.label}</span>
               </TabsTrigger>
             ))}
           </TabsList>
 
           <AnimatePresence mode="wait">
-            <TabsContent key={activeTab} value={activeTab} className="space-y-4">
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                                 {activeTab === "calendar" && <CalendarView />}
-                 {activeTab === "my-duties" && <MyDuties userId={session.user.id} />}
-                 {activeTab === "swaps" && <SwapRequests userId={session.user.id} />}
-                 {activeTab === "team" && <TeamMembers />}
-              </motion.div>
-            </TabsContent>
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.15 }}
+              className="mt-6"
+            >
+              <TabsContent value="calendar" className="mt-0">
+                <CalendarView />
+              </TabsContent>
+              <TabsContent value="my-duties" className="mt-0">
+                <MyDuties />
+              </TabsContent>
+              <TabsContent value="swaps" className="mt-0">
+                <SwapRequests />
+              </TabsContent>
+              <TabsContent value="team" className="mt-0">
+                <TeamMembers />
+              </TabsContent>
+            </motion.div>
           </AnimatePresence>
         </Tabs>
       </motion.div>
