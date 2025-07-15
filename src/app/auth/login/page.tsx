@@ -47,10 +47,10 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            ResLife Duty Calendar
+            Sign In
           </CardTitle>
           <CardDescription className="text-center">
-            Sign in to manage your duties
+            Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -61,9 +61,8 @@ export default function LoginPage() {
                 id="email"
                 name="email"
                 type="email"
-                placeholder="john@example.com"
+                placeholder="Enter your email"
                 required
-                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -72,32 +71,25 @@ export default function LoginPage() {
                 id="password"
                 name="password"
                 type="password"
+                placeholder="Enter your password"
                 required
-                disabled={isLoading}
               />
             </div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
-          <Link
-            href="/auth/forgot-password"
-            className="text-sm text-muted-foreground hover:text-primary"
-          >
-            Forgot your password?
-          </Link>
-          <div className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground text-center">
             Don't have an account?{" "}
-            <Link href="/auth/register" className="text-primary hover:underline">
-              Sign up
+            <Link 
+              href="/auth/register" 
+              className="text-primary hover:underline"
+            >
+              Register here
             </Link>
-          </div>
+          </p>
         </CardFooter>
       </Card>
     </div>

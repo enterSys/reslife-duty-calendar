@@ -18,16 +18,10 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     const formData = new FormData(event.currentTarget)
+    const fullName = formData.get("fullName") as string
     const email = formData.get("email") as string
     const password = formData.get("password") as string
-    const confirmPassword = formData.get("confirmPassword") as string
-    const fullName = formData.get("fullName") as string
-
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match")
-      setIsLoading(false)
-      return
-    }
+    const allocatedBuilding = formData.get("allocatedBuilding") as string
 
     try {
       const response = await fetch("/api/auth/register", {
@@ -36,22 +30,22 @@ export default function RegisterPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          fullName,
           email,
           password,
-          fullName,
+          allocatedBuilding,
         }),
       })
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Registration failed")
+      if (response.ok) {
+        toast.success("Account created successfully! You can now sign in.")
+        router.push("/auth/login")
+      } else {
+        const data = await response.json()
+        toast.error(data.message || "Failed to create account")
       }
-
-      toast.success("Account created successfully! Please sign in.")
-      router.push("/auth/login")
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Registration failed")
+      toast.error("An error occurred. Please try again.")
     } finally {
       setIsLoading(false)
     }
@@ -62,10 +56,10 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            Create an account
+            Create Account
           </CardTitle>
           <CardDescription className="text-center">
-            Join ResLife Duty Calendar
+            Enter your information to create an account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -75,9 +69,9 @@ export default function RegisterPage() {
               <Input
                 id="fullName"
                 name="fullName"
-                placeholder="John Doe"
+                type="text"
+                placeholder="Enter your full name"
                 required
-                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -86,9 +80,18 @@ export default function RegisterPage() {
                 id="email"
                 name="email"
                 type="email"
-                placeholder="john@example.com"
+                placeholder="Enter your email"
                 required
-                disabled={isLoading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="allocatedBuilding">Building</Label>
+              <Input
+                id="allocatedBuilding"
+                name="allocatedBuilding"
+                type="text"
+                placeholder="Enter your building"
+                required
               />
             </div>
             <div className="space-y-2">
@@ -97,38 +100,25 @@ export default function RegisterPage() {
                 id="password"
                 name="password"
                 type="password"
+                placeholder="Create a password"
                 required
-                minLength={6}
-                disabled={isLoading}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                minLength={6}
-                disabled={isLoading}
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
         </CardContent>
-        <CardFooter>
-          <div className="text-sm text-muted-foreground">
+        <CardFooter className="flex flex-col space-y-2">
+          <p className="text-sm text-muted-foreground text-center">
             Already have an account?{" "}
-            <Link href="/auth/login" className="text-primary hover:underline">
-              Sign in
+            <Link 
+              href="/auth/login" 
+              className="text-primary hover:underline"
+            >
+              Sign in here
             </Link>
-          </div>
+          </p>
         </CardFooter>
       </Card>
     </div>
