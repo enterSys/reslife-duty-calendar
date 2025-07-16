@@ -44,16 +44,20 @@ export function ProfileForm({ user }: ProfileFormProps) {
     defaultValues: {
       fullName: user.name || "",
       email: user.email || "",
-      allocatedBuilding: user.allocatedBuilding || "",
+      allocatedBuilding: user.allocatedBuilding || "none",
     },
   })
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: ProfileFormData) => {
+      const payload = {
+        ...data,
+        allocatedBuilding: data.allocatedBuilding === "none" ? null : data.allocatedBuilding,
+      }
       const response = await fetch("/api/users/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       })
 
       if (!response.ok) {
@@ -131,7 +135,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
             <SelectValue placeholder="Select your building" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">None</SelectItem>
+            <SelectItem value="none">None</SelectItem>
             {buildings.map((building) => (
               <SelectItem key={building} value={building}>
                 {building}
