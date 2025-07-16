@@ -32,11 +32,11 @@ export function UserAvatar({ user }: UserAvatarProps) {
   }
   
   const handleProfileClick = () => {
-    router.push("/dashboard?tab=my-duties")
+    router.push("/profile")
   }
   
   const handleSettingsClick = () => {
-    router.push("/dashboard?tab=team")
+    router.push("/profile")
   }
 
   const initials = user.name

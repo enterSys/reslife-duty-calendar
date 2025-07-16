@@ -1,0 +1,156 @@
+"use client"
+
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
+
+const profileSchema = z.object({
+  fullName: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  allocatedBuilding: z.string().optional(),
+})
+
+type ProfileFormData = z.infer<typeof profileSchema>
+
+interface ProfileFormProps {
+  user: {
+    id: string
+    name?: string | null
+    email?: string | null
+    allocatedBuilding?: string | null
+  }
+}
+
+export function ProfileForm({ user }: ProfileFormProps) {
+  const queryClient = useQueryClient()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isDirty },
+  } = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      fullName: user.name || "",
+      email: user.email || "",
+      allocatedBuilding: user.allocatedBuilding || "",
+    },
+  })
+
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data: ProfileFormData) => {
+      const response = await fetch("/api/users/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to update profile")
+      }
+
+      return response.json()
+    },
+    onSuccess: () => {
+      toast.success("Profile updated successfully")
+      queryClient.invalidateQueries({ queryKey: ["profile"] })
+      // Update session data if possible
+    },
+    onError: (error: Error) => {
+      toast.error(error.message)
+    },
+    onSettled: () => {
+      setIsSubmitting(false)
+    },
+  })
+
+  const onSubmit = async (data: ProfileFormData) => {
+    setIsSubmitting(true)
+    updateProfileMutation.mutate(data)
+  }
+
+  const buildings = [
+    "Abbey Hall",
+    "Bentley Hall", 
+    "Carrollton Hall",
+    "Davidson Hall",
+    "Ellsworth Hall",
+    "Franklin Hall",
+    "Georgetown Hall",
+    "Hamilton Hall",
+  ]
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="fullName">Full Name</Label>
+          <Input
+            id="fullName"
+            {...register("fullName")}
+            placeholder="Enter your full name"
+          />
+          {errors.fullName && (
+            <p className="text-sm text-destructive">{errors.fullName.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="email">Email Address</Label>
+          <Input
+            id="email"
+            type="email"
+            {...register("email")}
+            placeholder="Enter your email"
+          />
+          {errors.email && (
+            <p className="text-sm text-destructive">{errors.email.message}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="allocatedBuilding">Allocated Building</Label>
+        <Select
+          value={watch("allocatedBuilding")}
+          onValueChange={(value) => setValue("allocatedBuilding", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select your building" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">None</SelectItem>
+            {buildings.map((building) => (
+              <SelectItem key={building} value={building}>
+                {building}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex justify-end">
+        <Button
+          type="submit"
+          disabled={!isDirty || isSubmitting}
+          className="min-w-[120px]"
+        >
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isSubmitting ? "Saving..." : "Save Changes"}
+        </Button>
+      </div>
+    </form>
+  )
+}

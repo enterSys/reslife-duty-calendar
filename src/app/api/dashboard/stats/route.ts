@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-import { getServerSession } from "next-auth"
-import { authOptions } from "../../auth/[...nextauth]/route"
-
-const prisma = new PrismaClient()
+import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -72,8 +69,8 @@ export async function GET(req: NextRequest) {
       prisma.dutySwap.count({
         where: {
           OR: [
-            { requestorId: userId },
-            { targetId: userId }
+            { requesterId: userId },
+            { requestedWithId: userId }
           ],
           status: "pending"
         }
@@ -113,7 +110,5 @@ export async function GET(req: NextRequest) {
       { error: "Failed to fetch dashboard statistics" },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }

@@ -30,6 +30,7 @@ model User {
   swapRequestsInitiated DutySwap[]             @relation("requester")
   swapRequestsReceived  DutySwap[]             @relation("requested_with")
   calendarSubscriptions CalendarSubscription[]
+  unavailableDays      UnavailableDay[]
 
   @@map("users")
 }
@@ -106,4 +107,25 @@ model CalendarSubscription {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("calendar_subscriptions")
+}
+
+model UnavailableDay {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  startDate DateTime @map("start_date") @db.Date
+  endDate   DateTime @map("end_date") @db.Date
+  reason    String?
+  recurring Boolean  @default(false) // For weekly recurring unavailability
+  dayOfWeek Int?     @map("day_of_week") // 0=Sunday, 1=Monday, etc. (for recurring)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([startDate, endDate])
+  @@index([dayOfWeek])
+  @@map("unavailable_days")
 }
