@@ -21,7 +21,8 @@ const MyDuties = dynamic(() => import("./my-duties").then(mod => ({ default: mod
 })
 
 const SwapRequests = dynamic(() => import("./swap-requests").then(mod => ({ default: mod.SwapRequests })), {
-  loading: () => <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>
+  loading: () => <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>,
+  ssr: false
 })
 
 const TeamMembers = dynamic(() => import("./team-members").then(mod => ({ default: mod.TeamMembers })), {
