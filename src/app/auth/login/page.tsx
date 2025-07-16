@@ -30,8 +30,16 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        toast.error("Invalid email or password")
+        // Provide more specific error feedback
+        if (result.error === "CredentialsSignin") {
+          toast.error("Invalid email or password. Please check your credentials and try again.")
+        } else if (result.error === "Configuration") {
+          toast.error("Authentication service temporarily unavailable. Please try again later.")
+        } else {
+          toast.error("Login failed. Please contact support if this continues.")
+        }
       } else {
+        toast.success("Login successful! Welcome back.")
         router.push("/dashboard")
         router.refresh()
       }
@@ -81,6 +89,14 @@ export default function LoginPage() {
           </form>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
+          <div className="text-center">
+            <Link 
+              href="/auth/forgot-password" 
+              className="text-sm text-primary hover:underline"
+            >
+              Forgot your password?
+            </Link>
+          </div>
           <p className="text-sm text-muted-foreground text-center">
             Don't have an account?{" "}
             <Link 
