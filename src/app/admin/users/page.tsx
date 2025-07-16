@@ -1,9 +1,8 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { prisma } from "@/lib/prisma"
 import { UserManagement } from "@/components/admin/user-management"
 
-// Force dynamic rendering to prevent build-time database queries
+// Force dynamic rendering since this page uses authentication
 export const dynamic = 'force-dynamic'
 
 export default async function AdminUsersPage() {
@@ -13,49 +12,9 @@ export default async function AdminUsersPage() {
     redirect("/auth/login")
   }
 
-  // Check if user is admin
-  const user = await prisma.user.findUnique({
-    where: { id: parseInt(session.user.id) },
-  })
-
-  if (user?.role !== "admin") {
-    redirect("/dashboard")
-  }
-
-  const users = await prisma.user.findMany({
-    include: {
-      _count: {
-        select: {
-          duties: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  })
-
-  // Convert to serializable format
-  const serializedUsers = users.map(user => ({
-    id: user.id,
-    email: user.email,
-    fullName: user.fullName,
-    role: user.role,
-    allocatedBuilding: user.allocatedBuilding,
-    createdAt: user.createdAt.toISOString(),
-    shiftsCount: user._count.duties,
-  }))
-
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">User Management</h1>
-        <p className="text-muted-foreground">
-          Manage user accounts and permissions
-        </p>
-      </div>
-
-      <UserManagement initialUsers={serializedUsers} />
+    <div className="container mx-auto py-6">
+      <UserManagement />
     </div>
   )
 }

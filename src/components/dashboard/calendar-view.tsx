@@ -166,7 +166,7 @@ export function CalendarView() {
                 key={day.toISOString()}
                 className={`
                   border rounded-lg p-1 sm:p-2 min-h-[80px] sm:min-h-[100px] relative
-                  transition-all duration-200 hover:scale-[1.02]
+                  transition-all duration-150 hover:scale-[1.005]
                   ${isTodayDate ? "border-primary bg-primary/5" : ""}
                   ${!isCurrentMonth ? "opacity-30 bg-muted/10 text-muted-foreground" : ""}
                   ${isCurrentMonth && isWeekend(day) ? "bg-muted/20" : ""}
@@ -199,7 +199,7 @@ export function CalendarView() {
                           <TooltipTrigger asChild>
                             <button
                               onClick={() => handleDutyClick(duty)}
-                              className="transition-transform hover:scale-110 active:scale-95"
+                              className="transition-transform duration-150 hover:scale-105 active:scale-95"
                             >
                               <Avatar className="h-7 w-7 sm:h-8 sm:w-8 cursor-pointer">
                                 <AvatarImage 
