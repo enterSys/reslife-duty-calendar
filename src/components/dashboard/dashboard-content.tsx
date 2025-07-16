@@ -8,6 +8,8 @@ import { Calendar, Users, FileSpreadsheet, ArrowLeftRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useQuery } from "@tanstack/react-query"
+import { Skeleton } from "@/components/ui/skeleton"
 import dynamic from "next/dynamic"
 
 // Dynamic imports for better performance
@@ -47,6 +49,15 @@ export function DashboardContent({ session }: DashboardContentProps) {
       setActiveTab(tab)
     }
   }, [searchParams])
+
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: async () => {
+      const response = await fetch("/api/dashboard/stats")
+      if (!response.ok) throw new Error("Failed to fetch dashboard stats")
+      return response.json()
+    },
+  })
 
   const tabs = [
     {
@@ -100,9 +111,17 @@ export function DashboardContent({ session }: DashboardContentProps) {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24</div>
+            {statsLoading ? (
+              <Skeleton className="h-8 w-16 mb-1" />
+            ) : (
+              <div className="text-2xl font-bold">{stats?.totalDuties || 0}</div>
+            )}
             <p className="text-xs text-muted-foreground">
-              +2 from last month
+              {statsLoading ? (
+                <Skeleton className="h-3 w-20" />
+              ) : (
+                stats?.stats.totalDutiesText || "No change"
+              )}
             </p>
           </CardContent>
         </Card>
@@ -112,9 +131,17 @@ export function DashboardContent({ session }: DashboardContentProps) {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
+            {statsLoading ? (
+              <Skeleton className="h-8 w-16 mb-1" />
+            ) : (
+              <div className="text-2xl font-bold">{stats?.completedDuties || 0}</div>
+            )}
             <p className="text-xs text-muted-foreground">
-              50% completion rate
+              {statsLoading ? (
+                <Skeleton className="h-3 w-20" />
+              ) : (
+                stats?.stats.completionText || "0% completion rate"
+              )}
             </p>
           </CardContent>
         </Card>
@@ -124,9 +151,17 @@ export function DashboardContent({ session }: DashboardContentProps) {
             <ArrowLeftRight className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
+            {statsLoading ? (
+              <Skeleton className="h-8 w-16 mb-1" />
+            ) : (
+              <div className="text-2xl font-bold">{stats?.pendingSwaps || 0}</div>
+            )}
             <p className="text-xs text-muted-foreground">
-              Awaiting approval
+              {statsLoading ? (
+                <Skeleton className="h-3 w-20" />
+              ) : (
+                stats?.stats.swapsText || "Awaiting approval"
+              )}
             </p>
           </CardContent>
         </Card>
@@ -136,9 +171,17 @@ export function DashboardContent({ session }: DashboardContentProps) {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
+            {statsLoading ? (
+              <Skeleton className="h-8 w-16 mb-1" />
+            ) : (
+              <div className="text-2xl font-bold">{stats?.totalTeamMembers || 0}</div>
+            )}
             <p className="text-xs text-muted-foreground">
-              Active staff
+              {statsLoading ? (
+                <Skeleton className="h-3 w-20" />
+              ) : (
+                stats?.stats.teamText || "Active staff"
+              )}
             </p>
           </CardContent>
         </Card>

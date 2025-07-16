@@ -29,19 +29,7 @@ import {
 } from "@/components/ui/table"
 import { toast } from "sonner"
 
-// Sample data structure - in production, this would come from Google Sheets API
-const SAMPLE_DATA = [
-  { date: "02/01/2024", memberName: "John Doe" },
-  { date: "03/01/2024", memberName: "Jane Smith" },
-  { date: "04/01/2024", memberName: "Robert Johnson" },
-  { date: "05/01/2024", memberName: "Emily Davis" },
-  { date: "06/01/2024", memberName: "Michael Brown" },
-  { date: "07/01/2024", memberName: "Sarah Wilson" },
-  { date: "08/01/2024", memberName: "David Martinez" },
-  { date: "09/01/2024", memberName: "Lisa Anderson" },
-  { date: "10/01/2024", memberName: "James Taylor" },
-  { date: "11/01/2024", memberName: "Mary Thomas" },
-]
+// This component now uses paste data or direct API integration instead of sample data
 
 interface ImportResult {
   message: string
@@ -54,16 +42,21 @@ interface ImportResult {
   }>
 }
 
+interface DutyData {
+  date: string
+  memberName: string
+}
+
 export function ImportDutiesDialog() {
   const [open, setOpen] = useState(false)
-  const [previewData, setPreviewData] = useState<typeof SAMPLE_DATA | null>(null)
+  const [previewData, setPreviewData] = useState<DutyData[] | null>(null)
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const [pastedData, setPastedData] = useState("")
   const [importMethod, setImportMethod] = useState<"sheets" | "paste">("paste")
   const queryClient = useQueryClient()
 
   const importMutation = useMutation({
-    mutationFn: async (data: typeof SAMPLE_DATA) => {
+    mutationFn: async (data: DutyData[]) => {
       const response = await fetch("/api/duties/import", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -88,10 +81,9 @@ export function ImportDutiesDialog() {
   })
 
   const handleFetchData = useCallback(() => {
-    // In production, this would fetch from Google Sheets API
-    // For now, we'll use sample data
-    setPreviewData(SAMPLE_DATA)
-    setImportResult(null)
+    // This feature requires Google Sheets API integration
+    // Use the paste data method instead
+    toast.error("Google Sheets integration not implemented. Please use the paste data method.")
   }, [])
 
   // Memoize date parsing function

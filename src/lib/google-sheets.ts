@@ -37,19 +37,8 @@ export async function fetchGoogleSheetsData(
   })).filter(row => row.date && row.memberName);
   */
   
-  // Sample data matching the expected format
-  return [
-    { date: "1/2/2024", memberName: "John Doe" },
-    { date: "1/3/2024", memberName: "Jane Smith" },
-    { date: "1/4/2024", memberName: "Robert Johnson" },
-    { date: "1/5/2024", memberName: "Emily Davis" },
-    { date: "1/6/2024", memberName: "Michael Brown" },
-    { date: "1/7/2024", memberName: "Sarah Wilson" },
-    { date: "1/8/2024", memberName: "David Martinez" },
-    { date: "1/9/2024", memberName: "Lisa Anderson" },
-    { date: "1/10/2024", memberName: "James Taylor" },
-    { date: "1/11/2024", memberName: "Mary Thomas" },
-  ]
+  // This function is deprecated - use direct CSV import or API integration instead
+  return []
 }
 
 /**
