@@ -9,7 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Trash2, Plus, Save, Calendar, Edit, Check, X } from "lucide-react"
+import { Pagination, PaginationInfo } from "@/components/ui/pagination"
+import { Trash2, Plus, Save, Calendar, Edit, Check, X, Filter, SortAsc, SortDesc } from "lucide-react"
 import { format } from "date-fns"
 import { toast } from "sonner"
 
@@ -45,17 +46,35 @@ export function DutyEditor() {
     notes: ""
   })
   const [isAddingNew, setIsAddingNew] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
+  const [showFilters, setShowFilters] = useState(false)
   const queryClient = useQueryClient()
 
-  // Fetch duties
-  const { data: duties = [], isLoading: dutiesLoading } = useQuery({
-    queryKey: ["admin-duties"],
+  // Fetch duties with pagination and filtering
+  const { data: dutiesData, isLoading: dutiesLoading } = useQuery({
+    queryKey: ["admin-duties", currentPage, pageSize, startDate, endDate, sortOrder],
     queryFn: async () => {
-      const response = await fetch("/api/duties")
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: pageSize.toString(),
+        sortOrder,
+      })
+      
+      if (startDate) params.append("startDate", startDate)
+      if (endDate) params.append("endDate", endDate)
+      
+      const response = await fetch(`/api/duties?${params}`)
       if (!response.ok) throw new Error("Failed to fetch duties")
       return response.json()
     }
   })
+
+  const duties = dutiesData?.duties || []
+  const pagination = dutiesData?.pagination
 
   // Fetch users
   const { data: users = [], isLoading: usersLoading } = useQuery({
@@ -92,25 +111,29 @@ export function DutyEditor() {
       await queryClient.cancelQueries({ queryKey: ["admin-duties"] })
       
       // Snapshot the previous value
-      const previousDuties = queryClient.getQueryData(["admin-duties"])
+      const queryKey = ["admin-duties", currentPage, pageSize, startDate, endDate, sortOrder]
+      const previousDuties = queryClient.getQueryData(queryKey)
       
       // Find the user data for the updated duty
       const selectedUser = users.find((u: User) => u.id === duty.userId)
       
       // Optimistically update the cache
-      queryClient.setQueryData(["admin-duties"], (old: any) => {
-        if (!old) return old
-        return old.map((d: any) => 
-          d.id === duty.id 
-            ? {
-                ...d,
-                dutyDate: duty.dutyDate,
-                notes: duty.notes,
-                user: selectedUser ? { id: selectedUser.id, fullName: selectedUser.fullName } : d.user,
-                dutyType: new Date(duty.dutyDate).getDay() === 0 || new Date(duty.dutyDate).getDay() === 6 ? "weekend" : "weekday"
-              }
-            : d
-        )
+      queryClient.setQueryData(queryKey, (old: any) => {
+        if (!old?.duties) return old
+        return {
+          ...old,
+          duties: old.duties.map((d: any) => 
+            d.id === duty.id 
+              ? {
+                  ...d,
+                  dutyDate: duty.dutyDate,
+                  notes: duty.notes,
+                  user: selectedUser ? { id: selectedUser.id, fullName: selectedUser.fullName } : d.user,
+                  dutyType: new Date(duty.dutyDate).getDay() === 0 || new Date(duty.dutyDate).getDay() === 6 ? "weekend" : "weekday"
+                }
+              : d
+          )
+        }
       })
       
       return { previousDuties }
@@ -118,7 +141,8 @@ export function DutyEditor() {
     onError: (error, duty, context) => {
       // Rollback on error
       if (context?.previousDuties) {
-        queryClient.setQueryData(["admin-duties"], context.previousDuties)
+        const queryKey = ["admin-duties", currentPage, pageSize, startDate, endDate, sortOrder]
+        queryClient.setQueryData(queryKey, context.previousDuties)
       }
       
       const errorMessage = error.message || "Failed to update duty"
@@ -160,7 +184,8 @@ export function DutyEditor() {
       await queryClient.cancelQueries({ queryKey: ["admin-duties"] })
       
       // Snapshot the previous value
-      const previousDuties = queryClient.getQueryData(["admin-duties"])
+      const queryKey = ["admin-duties", currentPage, pageSize, startDate, endDate, sortOrder]
+      const previousDuties = queryClient.getQueryData(queryKey)
       
       // Find the user data for the new duty
       const selectedUser = users.find((u: User) => u.id === parseInt(duty.userId))
@@ -175,9 +200,12 @@ export function DutyEditor() {
       }
       
       // Optimistically update the cache
-      queryClient.setQueryData(["admin-duties"], (old: any) => {
-        if (!old) return [optimisticDuty]
-        return [...old, optimisticDuty]
+      queryClient.setQueryData(queryKey, (old: any) => {
+        if (!old?.duties) return { duties: [optimisticDuty], pagination: old?.pagination }
+        return {
+          ...old,
+          duties: [optimisticDuty, ...old.duties]
+        }
       })
       
       return { previousDuties }
@@ -185,7 +213,8 @@ export function DutyEditor() {
     onError: (error, duty, context) => {
       // Rollback on error
       if (context?.previousDuties) {
-        queryClient.setQueryData(["admin-duties"], context.previousDuties)
+        const queryKey = ["admin-duties", currentPage, pageSize, startDate, endDate, sortOrder]
+        queryClient.setQueryData(queryKey, context.previousDuties)
       }
       
       const errorMessage = error.message || "Failed to create duty"
@@ -226,12 +255,16 @@ export function DutyEditor() {
       await queryClient.cancelQueries({ queryKey: ["admin-duties"] })
       
       // Snapshot the previous value
-      const previousDuties = queryClient.getQueryData(["admin-duties"])
+      const queryKey = ["admin-duties", currentPage, pageSize, startDate, endDate, sortOrder]
+      const previousDuties = queryClient.getQueryData(queryKey)
       
       // Optimistically update the cache
-      queryClient.setQueryData(["admin-duties"], (old: any) => {
-        if (!old) return old
-        return old.filter((duty: any) => duty.id !== dutyId)
+      queryClient.setQueryData(queryKey, (old: any) => {
+        if (!old?.duties) return old
+        return {
+          ...old,
+          duties: old.duties.filter((duty: any) => duty.id !== dutyId)
+        }
       })
       
       return { previousDuties }
@@ -239,7 +272,8 @@ export function DutyEditor() {
     onError: (error, dutyId, context) => {
       // Rollback on error
       if (context?.previousDuties) {
-        queryClient.setQueryData(["admin-duties"], context.previousDuties)
+        const queryKey = ["admin-duties", currentPage, pageSize, startDate, endDate, sortOrder]
+        queryClient.setQueryData(queryKey, context.previousDuties)
       }
       
       const errorMessage = error.message || "Failed to delete duty"
@@ -285,7 +319,27 @@ export function DutyEditor() {
     }
   }
 
-  const sortedDuties = [...duties].sort((a, b) => new Date(a.dutyDate).getTime() - new Date(b.dutyDate).getTime())
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+  }
+
+  const handleClearFilters = () => {
+    setStartDate("")
+    setEndDate("")
+    setCurrentPage(1)
+  }
+
+  const handleSortToggle = () => {
+    setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+    setCurrentPage(1)
+  }
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [startDate, endDate])
+
+  const sortedDuties = [...duties]
 
   if (dutiesLoading || usersLoading) {
     return (
@@ -312,13 +366,76 @@ export function DutyEditor() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          {/* Filters and Controls */}
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
+            <div className="flex-1">
+              <Button
+                onClick={() => setShowFilters(!showFilters)}
+                variant="outline"
+                className="mb-2"
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                {showFilters ? "Hide Filters" : "Show Filters"}
+              </Button>
+              
+              {showFilters && (
+                <div className="flex flex-wrap gap-4 p-4 bg-muted/50 rounded-lg">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium">Start Date</label>
+                    <Input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-40"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium">End Date</label>
+                    <Input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-40"
+                    />
+                  </div>
+                  <div className="flex items-end gap-2">
+                    <Button
+                      onClick={handleClearFilters}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Clear Filters
+                    </Button>
+                    <Button
+                      onClick={handleSortToggle}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-1"
+                    >
+                      {sortOrder === "desc" ? (
+                        <SortDesc className="h-4 w-4" />
+                      ) : (
+                        <SortAsc className="h-4 w-4" />
+                      )}
+                      Sort Date
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex items-start">
+              {!isAddingNew ? (
+                <Button onClick={() => setIsAddingNew(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New Duty
+                </Button>
+              ) : null}
+            </div>
+          </div>
+
           {/* Add New Duty */}
-          {!isAddingNew ? (
-            <Button onClick={() => setIsAddingNew(true)} className="mb-4">
-              <Plus className="h-4 w-4 mr-2" />
-              Add New Duty
-            </Button>
-          ) : (
+          {isAddingNew && (
             <Card className="bg-muted/50">
               <CardContent className="pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -375,12 +492,39 @@ export function DutyEditor() {
             </Card>
           )}
 
+          {/* Pagination Info */}
+          {pagination && (
+            <PaginationInfo
+              currentPage={pagination.page}
+              totalPages={pagination.totalPages}
+              totalCount={pagination.totalCount}
+              limit={pagination.limit}
+              className="mb-4"
+            />
+          )}
+
           {/* Duties Table */}
           <div className="border rounded-lg">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-2">
+                      Date
+                      <Button
+                        onClick={handleSortToggle}
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                      >
+                        {sortOrder === "desc" ? (
+                          <SortDesc className="h-3 w-3" />
+                        ) : (
+                          <SortAsc className="h-3 w-3" />
+                        )}
+                      </Button>
+                    </div>
+                  </TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Notes</TableHead>
@@ -489,7 +633,36 @@ export function DutyEditor() {
 
           {sortedDuties.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              No duties found. Add your first duty above.
+              {startDate || endDate ? "No duties found for the selected date range." : "No duties found. Add your first duty above."}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Items per page:</span>
+                <Select value={pageSize.toString()} onValueChange={(value) => {
+                  setPageSize(parseInt(value))
+                  setCurrentPage(1)
+                }}>
+                  <SelectTrigger className="w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                onPageChange={handlePageChange}
+              />
             </div>
           )}
         </div>

@@ -21,6 +21,12 @@ export async function GET(request: Request) {
     const userId = searchParams.get("userId")
     const startDate = searchParams.get("startDate")
     const endDate = searchParams.get("endDate")
+    const page = parseInt(searchParams.get("page") || "1")
+    const limit = parseInt(searchParams.get("limit") || "20")
+    const sortOrder = searchParams.get("sortOrder") || "desc"
+
+    // Calculate offset for pagination
+    const offset = (page - 1) * limit
 
     const where: any = {}
     
@@ -28,12 +34,22 @@ export async function GET(request: Request) {
       where.userId = parseInt(userId)
     }
     
-    if (startDate && endDate) {
-      where.dutyDate = {
-        gte: new Date(startDate),
-        lte: new Date(endDate),
+    if (startDate || endDate) {
+      where.dutyDate = {}
+      if (startDate) {
+        where.dutyDate.gte = new Date(startDate)
+      }
+      if (endDate) {
+        // Add one day to include the end date
+        const endDateTime = new Date(endDate)
+        endDateTime.setDate(endDateTime.getDate() + 1)
+        where.dutyDate.lt = endDateTime
       }
     }
+
+    // Get total count for pagination
+    const totalCount = await prisma.duty.count({ where })
+    const totalPages = Math.ceil(totalCount / limit)
 
     const duties = await prisma.duty.findMany({
       where,
@@ -51,8 +67,10 @@ export async function GET(request: Request) {
         },
       },
       orderBy: {
-        dutyDate: "asc",
+        dutyDate: sortOrder === "asc" ? "asc" : "desc",
       },
+      skip: offset,
+      take: limit,
     })
 
     // Add duty type based on day of week
@@ -61,7 +79,17 @@ export async function GET(request: Request) {
       dutyType: duty.dutyType || (new Date(duty.dutyDate).getDay() === 0 || new Date(duty.dutyDate).getDay() === 6 ? "weekend" : "weekday"),
     }))
 
-    return NextResponse.json(dutiesWithType, {
+    return NextResponse.json({
+      duties: dutiesWithType,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      }
+    }, {
       headers: {
         'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
         'CDN-Cache-Control': 'public, s-maxage=300',
