@@ -4,13 +4,14 @@ import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { Session } from "next-auth"
 import { motion, AnimatePresence } from "framer-motion"
-import { Calendar, Users, FileSpreadsheet, ArrowLeftRight } from "lucide-react"
+import { Calendar, Users, FileSpreadsheet, ArrowLeftRight, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useQuery } from "@tanstack/react-query"
 import { Skeleton } from "@/components/ui/skeleton"
 import dynamic from "next/dynamic"
+import Link from "next/link"
 
 // Dynamic imports for better performance
 const CalendarView = dynamic(() => import("./calendar-view").then(mod => ({ default: mod.CalendarView })), {
@@ -101,7 +102,17 @@ export function DashboardContent({ session }: DashboardContentProps) {
             Manage your duties and view team information
           </p>
         </div>
-        <ImportDutiesDialog />
+        <div className="flex items-center gap-3">
+          {session.user.role === "admin" && (
+            <Button asChild variant="outline">
+              <Link href="/admin">
+                <Settings className="h-4 w-4 mr-2" />
+                Admin
+              </Link>
+            </Button>
+          )}
+          <ImportDutiesDialog />
+        </div>
       </motion.div>
 
       {/* Quick Stats */}

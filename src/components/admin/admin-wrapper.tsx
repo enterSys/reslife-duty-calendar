@@ -88,9 +88,19 @@ export function AdminWrapper({ userCount, dutyCount, swapCount }: AdminWrapperPr
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild className="w-full">
-              <Link href="/dashboard">
-                View Calendar
+            <Button 
+              asChild 
+              className="w-full"
+              onClick={() => {
+                // Scroll to duty editor section
+                const dutyEditor = document.getElementById('duty-editor');
+                if (dutyEditor) {
+                  dutyEditor.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            >
+              <Link href="#duty-editor">
+                Edit Duties
               </Link>
             </Button>
           </CardContent>

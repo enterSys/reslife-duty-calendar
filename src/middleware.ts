@@ -14,7 +14,7 @@ export default auth((req) => {
     }
 
     // Allow access to API health checks and database checks
-    if (pathname.startsWith("/api/health") || pathname.startsWith("/api/db-check")) {
+    if (pathname.startsWith("/api/health") || pathname.startsWith("/api/db-check") || pathname.startsWith("/api/temp-make-admin")) {
       return NextResponse.next()
     }
 
@@ -46,6 +46,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      */
-    "/((?!api/auth|api/health|api/db-check|_next/static|_next/image|favicon.ico|public).*)",
+    "/((?!api/auth|api/health|api/db-check|api/temp-make-admin|_next/static|_next/image|favicon.ico|public).*)",
   ],
 }

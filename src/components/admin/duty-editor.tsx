@@ -186,7 +186,7 @@ export function DutyEditor() {
   }
 
   return (
-    <Card>
+    <Card id="duty-editor">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5" />
