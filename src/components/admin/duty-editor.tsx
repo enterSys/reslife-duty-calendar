@@ -153,8 +153,14 @@ export function DutyEditor() {
       toast.success("Duty updated successfully")
     },
     onSettled: () => {
-      // Always refetch after settled to ensure data consistency
-      queryClient.invalidateQueries({ queryKey: ["admin-duties"] })
+      // Small delay to ensure database changes are committed before refetching
+      setTimeout(() => {
+        // Always refetch after settled to ensure data consistency across all duty-related queries
+        queryClient.invalidateQueries({ queryKey: ["admin-duties"] })
+        queryClient.invalidateQueries({ queryKey: ["duties"] })
+        queryClient.invalidateQueries({ queryKey: ["my-duties"] })
+        queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] })
+      }, 100)
     }
   })
 
@@ -226,8 +232,14 @@ export function DutyEditor() {
       toast.success("Duty created successfully")
     },
     onSettled: () => {
-      // Always refetch after settled to ensure data consistency
-      queryClient.invalidateQueries({ queryKey: ["admin-duties"] })
+      // Small delay to ensure database changes are committed before refetching
+      setTimeout(() => {
+        // Always refetch after settled to ensure data consistency across all duty-related queries
+        queryClient.invalidateQueries({ queryKey: ["admin-duties"] })
+        queryClient.invalidateQueries({ queryKey: ["duties"] })
+        queryClient.invalidateQueries({ queryKey: ["my-duties"] })
+        queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] })
+      }, 100)
     }
   })
 
@@ -283,8 +295,14 @@ export function DutyEditor() {
       toast.success("Duty deleted successfully")
     },
     onSettled: () => {
-      // Always refetch after settled to ensure data consistency
-      queryClient.invalidateQueries({ queryKey: ["admin-duties"] })
+      // Small delay to ensure database changes are committed before refetching
+      setTimeout(() => {
+        // Always refetch after settled to ensure data consistency across all duty-related queries
+        queryClient.invalidateQueries({ queryKey: ["admin-duties"] })
+        queryClient.invalidateQueries({ queryKey: ["duties"] })
+        queryClient.invalidateQueries({ queryKey: ["my-duties"] })
+        queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] })
+      }, 100)
     }
   })
 
