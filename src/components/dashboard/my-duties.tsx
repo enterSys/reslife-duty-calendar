@@ -31,11 +31,11 @@ export function MyDuties({ userId }: MyDutiesProps) {
     )
   }
 
-  const upcomingDuties = duties?.filter((duty: any) => 
+  const upcomingDuties = duties?.duties?.filter((duty: any) => 
     isFuture(new Date(duty.dutyDate))
   ) || []
   
-  const pastDuties = duties?.filter((duty: any) => 
+  const pastDuties = duties?.duties?.filter((duty: any) => 
     isPast(new Date(duty.dutyDate))
   ) || []
 

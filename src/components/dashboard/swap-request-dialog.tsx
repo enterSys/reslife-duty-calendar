@@ -130,7 +130,7 @@ export function SwapRequestDialog({ open, onOpenChange, duty }: SwapRequestDialo
                     <SelectValue placeholder="Select a duty to offer" />
                   </SelectTrigger>
                   <SelectContent>
-                    {myDuties?.map((myDuty: any) => (
+                    {myDuties?.duties?.map((myDuty: any) => (
                       <SelectItem key={myDuty.id} value={myDuty.id.toString()}>
                         {format(new Date(myDuty.dutyDate), "MMM d, yyyy")} - {myDuty.dutyType}
                       </SelectItem>

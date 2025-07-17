@@ -64,16 +64,16 @@ export function CalendarView() {
         `/api/duties?startDate=${weekStart.toISOString()}&endDate=${days[days.length - 1].toISOString()}`
       )
       if (!response.ok) throw new Error("Failed to fetch duties")
-      return response.json() as Promise<Duty[]>
+      return response.json() as Promise<{ duties: Duty[]; pagination: any }>
     },
   })
 
   // Memoize duties by date for better performance
   const dutiesByDate = useMemo(() => {
-    if (!duties) return new Map()
+    if (!duties?.duties) return new Map()
     
     const map = new Map<string, Duty[]>()
-    duties.forEach(duty => {
+    duties.duties.forEach(duty => {
       const dateStr = format(new Date(duty.dutyDate), "yyyy-MM-dd")
       if (!map.has(dateStr)) {
         map.set(dateStr, [])
