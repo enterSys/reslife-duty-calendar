@@ -21,6 +21,7 @@ model User {
   fullName     String   @map("full_name")
   role             String   @default("member")
   allocatedBuilding String?  @map("allocated_building")
+  profileImage     String?  @map("profile_image")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 

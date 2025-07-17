@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Users, Calendar, Shield, FileSpreadsheet, Edit3 } from "lucide-react"
-import { DutyEditor } from "@/components/admin/duty-editor"
 
 interface AdminWrapperProps {
   userCount: number
@@ -88,18 +87,8 @@ export function AdminWrapper({ userCount, dutyCount, swapCount }: AdminWrapperPr
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button 
-              asChild 
-              className="w-full"
-              onClick={() => {
-                // Scroll to duty editor section
-                const dutyEditor = document.getElementById('duty-editor');
-                if (dutyEditor) {
-                  dutyEditor.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-            >
-              <Link href="#duty-editor">
+            <Button asChild className="w-full">
+              <Link href="/admin/duties">
                 Edit Duties
               </Link>
             </Button>
@@ -189,9 +178,6 @@ export function AdminWrapper({ userCount, dutyCount, swapCount }: AdminWrapperPr
           </div>
         </CardContent>
       </Card>
-
-      {/* Duty Editor */}
-      <DutyEditor />
     </div>
   )
 }

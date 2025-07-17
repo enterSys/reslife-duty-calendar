@@ -21,6 +21,7 @@ interface UserAvatarProps {
     name?: string | null
     email?: string | null
     allocatedBuilding?: string | null
+    profileImage?: string | null
   }
 }
 
@@ -75,7 +76,7 @@ export function UserAvatar({ user }: UserAvatarProps) {
           >
             <Avatar className="h-8 w-8">
               <AvatarImage
-                src={`https://avatar.vercel.sh/${user.email}`}
+                src={user.profileImage || `https://avatar.vercel.sh/${user.email}`}
                 alt={user.name || user.email || "User"}
               />
               <AvatarFallback className="text-xs">

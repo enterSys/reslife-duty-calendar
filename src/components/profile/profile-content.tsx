@@ -7,6 +7,7 @@ import { ArrowLeft, User, Settings, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useRouter } from "next/navigation"
 import { ProfileForm } from "./profile-form"
 import { PasswordChangeForm } from "./password-change-form"
@@ -74,9 +75,15 @@ export function ProfileContent({ session }: ProfileContentProps) {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <User className="h-8 w-8 text-primary" />
-              </div>
+              <Avatar className="h-16 w-16">
+                <AvatarImage
+                  src={session.user.profileImage || `https://avatar.vercel.sh/${session.user.email}`}
+                  alt={session.user.name || session.user.email || "User"}
+                />
+                <AvatarFallback className="text-lg">
+                  <User className="h-8 w-8 text-primary" />
+                </AvatarFallback>
+              </Avatar>
               <div>
                 <CardTitle>{session.user.name}</CardTitle>
                 <CardDescription className="space-y-1">

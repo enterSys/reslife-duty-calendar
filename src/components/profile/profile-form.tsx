@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ImageUpload } from "@/components/ui/image-upload"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 
@@ -26,12 +27,14 @@ interface ProfileFormProps {
     name?: string | null
     email?: string | null
     allocatedBuilding?: string | null
+    profileImage?: string | null
   }
 }
 
 export function ProfileForm({ user }: ProfileFormProps) {
   const queryClient = useQueryClient()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [profileImage, setProfileImage] = useState(user.profileImage || "")
 
   const {
     register,
@@ -85,6 +88,27 @@ export function ProfileForm({ user }: ProfileFormProps) {
     updateProfileMutation.mutate(data)
   }
 
+  const handleImageUpload = (imageUrl: string) => {
+    setProfileImage(imageUrl)
+    queryClient.invalidateQueries({ queryKey: ["profile"] })
+  }
+
+  const handleImageRemove = async () => {
+    try {
+      const response = await fetch("/api/users/avatar", {
+        method: "DELETE",
+      })
+      
+      if (response.ok) {
+        setProfileImage("")
+        queryClient.invalidateQueries({ queryKey: ["profile"] })
+        toast.success("Profile picture removed successfully")
+      }
+    } catch (error) {
+      toast.error("Failed to remove profile picture")
+    }
+  }
+
   const buildings = [
     "Ashburne",
     "Sheavyn",
@@ -92,6 +116,16 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* Profile Picture Upload */}
+      <div className="space-y-2">
+        <ImageUpload
+          value={profileImage}
+          onChange={handleImageUpload}
+          onRemove={handleImageRemove}
+          disabled={isSubmitting}
+        />
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="fullName">Full Name</Label>
