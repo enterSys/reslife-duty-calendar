@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { UserAvatar } from "@/components/ui/user-avatar";
 
 export function Navbar() {
@@ -17,8 +18,14 @@ export function Navbar() {
   return (
     <nav className="w-full border-b bg-background/80 backdrop-blur sticky top-0 z-40">
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
-        <Link href="/dashboard" className="text-xl font-bold tracking-tight">
-          ResLife Duty Calendar
+        <Link href="/dashboard" className="flex items-center">
+          <Image 
+            src="/Reslife.svg" 
+            alt="ResLife Duty Calendar" 
+            width={120} 
+            height={52} 
+            className="h-8 w-auto"
+          />
         </Link>
         {session?.user && (
           <UserAvatar
