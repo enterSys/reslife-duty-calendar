@@ -87,14 +87,20 @@ export function DashboardContent({ session }: DashboardContentProps) {
   ]
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-      {/* Import Actions */}
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
-        className="flex justify-end"
+        className="flex items-center justify-between"
       >
+        <div>
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Manage your duties and view team information
+          </p>
+        </div>
         <ImportDutiesDialog />
       </motion.div>
 
@@ -203,29 +209,30 @@ export function DashboardContent({ session }: DashboardContentProps) {
             ))}
           </TabsList>
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.15 }}
-              className="mt-6"
-            >
-              <TabsContent value="my-duties" className="mt-0">
-                <MyDuties userId={session.user.id} />
-              </TabsContent>
-              <TabsContent value="calendar" className="mt-0">
-                <CalendarView />
-              </TabsContent>
-              <TabsContent value="swaps" className="mt-0">
-                <SwapRequests userId={session.user.id} />
-              </TabsContent>
-              <TabsContent value="team" className="mt-0">
-                <TeamMembers />
-              </TabsContent>
-            </motion.div>
-          </AnimatePresence>
+          <div className="mt-6">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.15 }}
+              >
+                <TabsContent value="my-duties" className="mt-0">
+                  <MyDuties userId={session.user.id} />
+                </TabsContent>
+                <TabsContent value="calendar" className="mt-0">
+                  <CalendarView />
+                </TabsContent>
+                <TabsContent value="swaps" className="mt-0">
+                  <SwapRequests userId={session.user.id} />
+                </TabsContent>
+                <TabsContent value="team" className="mt-0">
+                  <TeamMembers />
+                </TabsContent>
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </Tabs>
       </motion.div>
     </div>
