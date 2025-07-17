@@ -79,16 +79,58 @@ export function DutyEditor() {
           notes: duty.notes
         })
       })
-      if (!response.ok) throw new Error("Failed to update duty")
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to update duty")
+      }
+      
       return response.json()
     },
+    onMutate: async (duty: EditingDuty) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["admin-duties"] })
+      
+      // Snapshot the previous value
+      const previousDuties = queryClient.getQueryData(["admin-duties"])
+      
+      // Find the user data for the updated duty
+      const selectedUser = users.find((u: User) => u.id === duty.userId)
+      
+      // Optimistically update the cache
+      queryClient.setQueryData(["admin-duties"], (old: any) => {
+        if (!old) return old
+        return old.map((d: any) => 
+          d.id === duty.id 
+            ? {
+                ...d,
+                dutyDate: duty.dutyDate,
+                notes: duty.notes,
+                user: selectedUser ? { id: selectedUser.id, fullName: selectedUser.fullName } : d.user,
+                dutyType: new Date(duty.dutyDate).getDay() === 0 || new Date(duty.dutyDate).getDay() === 6 ? "weekend" : "weekday"
+              }
+            : d
+        )
+      })
+      
+      return { previousDuties }
+    },
+    onError: (error, duty, context) => {
+      // Rollback on error
+      if (context?.previousDuties) {
+        queryClient.setQueryData(["admin-duties"], context.previousDuties)
+      }
+      
+      const errorMessage = error.message || "Failed to update duty"
+      toast.error(errorMessage)
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-duties"] })
       setEditingDuty(null)
       toast.success("Duty updated successfully")
     },
-    onError: () => {
-      toast.error("Failed to update duty")
+    onSettled: () => {
+      // Always refetch after settled to ensure data consistency
+      queryClient.invalidateQueries({ queryKey: ["admin-duties"] })
     }
   })
 
@@ -105,17 +147,58 @@ export function DutyEditor() {
           dutyType: new Date(duty.dutyDate).getDay() === 0 || new Date(duty.dutyDate).getDay() === 6 ? "weekend" : "weekday"
         })
       })
-      if (!response.ok) throw new Error("Failed to create duty")
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to create duty")
+      }
+      
       return response.json()
     },
+    onMutate: async (duty: typeof newDuty) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["admin-duties"] })
+      
+      // Snapshot the previous value
+      const previousDuties = queryClient.getQueryData(["admin-duties"])
+      
+      // Find the user data for the new duty
+      const selectedUser = users.find((u: User) => u.id === parseInt(duty.userId))
+      
+      // Create optimistic duty with temporary ID
+      const optimisticDuty = {
+        id: Date.now(), // Temporary ID
+        dutyDate: duty.dutyDate,
+        notes: duty.notes,
+        dutyType: new Date(duty.dutyDate).getDay() === 0 || new Date(duty.dutyDate).getDay() === 6 ? "weekend" : "weekday",
+        user: selectedUser ? { id: selectedUser.id, fullName: selectedUser.fullName } : { id: parseInt(duty.userId), fullName: "Unknown" }
+      }
+      
+      // Optimistically update the cache
+      queryClient.setQueryData(["admin-duties"], (old: any) => {
+        if (!old) return [optimisticDuty]
+        return [...old, optimisticDuty]
+      })
+      
+      return { previousDuties }
+    },
+    onError: (error, duty, context) => {
+      // Rollback on error
+      if (context?.previousDuties) {
+        queryClient.setQueryData(["admin-duties"], context.previousDuties)
+      }
+      
+      const errorMessage = error.message || "Failed to create duty"
+      toast.error(errorMessage)
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-duties"] })
       setNewDuty({ dutyDate: "", userId: "", notes: "" })
       setIsAddingNew(false)
       toast.success("Duty created successfully")
     },
-    onError: () => {
-      toast.error("Failed to create duty")
+    onSettled: () => {
+      // Always refetch after settled to ensure data consistency
+      queryClient.invalidateQueries({ queryKey: ["admin-duties"] })
     }
   })
 
@@ -125,15 +208,49 @@ export function DutyEditor() {
       const response = await fetch(`/api/duties/${dutyId}`, {
         method: "DELETE"
       })
-      if (!response.ok) throw new Error("Failed to delete duty")
+      
+      // Handle 404 errors gracefully - duty might already be deleted
+      if (response.status === 404) {
+        return { message: "Duty was already deleted" }
+      }
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to delete duty")
+      }
+      
       return response.json()
     },
+    onMutate: async (dutyId: number) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["admin-duties"] })
+      
+      // Snapshot the previous value
+      const previousDuties = queryClient.getQueryData(["admin-duties"])
+      
+      // Optimistically update the cache
+      queryClient.setQueryData(["admin-duties"], (old: any) => {
+        if (!old) return old
+        return old.filter((duty: any) => duty.id !== dutyId)
+      })
+      
+      return { previousDuties }
+    },
+    onError: (error, dutyId, context) => {
+      // Rollback on error
+      if (context?.previousDuties) {
+        queryClient.setQueryData(["admin-duties"], context.previousDuties)
+      }
+      
+      const errorMessage = error.message || "Failed to delete duty"
+      toast.error(errorMessage)
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-duties"] })
       toast.success("Duty deleted successfully")
     },
-    onError: () => {
-      toast.error("Failed to delete duty")
+    onSettled: () => {
+      // Always refetch after settled to ensure data consistency
+      queryClient.invalidateQueries({ queryKey: ["admin-duties"] })
     }
   })
 
@@ -347,6 +464,7 @@ export function DutyEditor() {
                               onClick={() => handleEdit(duty)}
                               size="sm"
                               variant="ghost"
+                              disabled={updateDutyMutation.isPending || deleteDutyMutation.isPending}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -355,6 +473,7 @@ export function DutyEditor() {
                               size="sm"
                               variant="ghost"
                               className="text-red-600 hover:text-red-700"
+                              disabled={deleteDutyMutation.isPending}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
