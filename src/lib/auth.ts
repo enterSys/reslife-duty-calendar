@@ -44,6 +44,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               role: true,
               passwordHash: true,
               allocatedBuilding: true,
+              profileImage: true,
             },
           })
 
@@ -63,6 +64,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             name: user.fullName,
             role: user.role,
             allocatedBuilding: user.allocatedBuilding,
+            profileImage: user.profileImage,
           }
         } catch (error) {
           console.error("Auth error:", error)
@@ -77,6 +79,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.id = user.id
         token.role = user.role
         token.allocatedBuilding = user.allocatedBuilding
+        token.profileImage = user.profileImage
       }
       return token
     },
@@ -85,6 +88,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string
         session.user.role = token.role as string
         session.user.allocatedBuilding = token.allocatedBuilding as string
+        session.user.profileImage = token.profileImage as string
       }
       return session
     },
