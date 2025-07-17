@@ -86,14 +86,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
   }
 
   const buildings = [
-    "Abbey Hall",
-    "Bentley Hall", 
-    "Carrollton Hall",
-    "Davidson Hall",
-    "Ellsworth Hall",
-    "Franklin Hall",
-    "Georgetown Hall",
-    "Hamilton Hall",
+    "Ashburne",
+    "Sheavyn",
   ]
 
   return (

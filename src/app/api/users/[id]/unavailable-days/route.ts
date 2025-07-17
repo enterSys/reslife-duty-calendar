@@ -4,8 +4,12 @@ import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 
 const createUnavailableSchema = z.object({
-  startDate: z.string().datetime(),
-  endDate: z.string().datetime(),
+  startDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: "Invalid start date format",
+  }),
+  endDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: "Invalid end date format",
+  }),
   reason: z.string().optional(),
   recurring: z.boolean().default(false),
   dayOfWeek: z.number().min(0).max(6).optional(),
@@ -71,8 +75,13 @@ export async function POST(
     const body = await req.json()
     const validatedData = createUnavailableSchema.parse(body)
 
+    // Parse dates and ensure they are in UTC date format (YYYY-MM-DD)
     const startDate = new Date(validatedData.startDate)
     const endDate = new Date(validatedData.endDate)
+    
+    // Set to midnight UTC to avoid timezone issues with date-only fields
+    startDate.setUTCHours(0, 0, 0, 0)
+    endDate.setUTCHours(0, 0, 0, 0)
 
     // Validate dates
     if (startDate > endDate) {
