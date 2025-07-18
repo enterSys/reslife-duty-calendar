@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useQuery } from "@tanstack/react-query"
+import { useRealTimeDuties } from "@/hooks/useRealTimeDuties"
 import { SwapRequestDialog } from "./swap-request-dialog"
 import {
   Tooltip,
@@ -45,6 +46,9 @@ export function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDuty, setSelectedDuty] = useState<Duty | null>(null)
   const [showSwapDialog, setShowSwapDialog] = useState(false)
+  
+  // Initialize real-time updates
+  const { isConnected, connectionError } = useRealTimeDuties()
 
   // Memoize expensive calculations
   const { monthStart, weekStart, days } = useMemo(() => {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { emitDutyUpdated, emitDutyDeleted } from "@/lib/duty-events"
 
 const updateDutySchema = z.object({
   dutyDate: z.string().transform((str) => new Date(str)).optional(),
@@ -49,6 +50,9 @@ export async function PATCH(
       },
     })
 
+    // Emit real-time update
+    emitDutyUpdated(updatedDuty)
+
     return NextResponse.json(updatedDuty)
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -92,6 +96,9 @@ export async function DELETE(
     await prisma.duty.delete({
       where: { id: dutyId },
     })
+
+    // Emit real-time deletion
+    emitDutyDeleted(dutyId)
 
     return NextResponse.json({ message: "Duty deleted successfully" })
   } catch (error) {

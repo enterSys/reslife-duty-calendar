@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { emitDutyCreated } from "@/lib/duty-events"
 
 const createDutySchema = z.object({
   dutyDate: z.string().transform((str) => new Date(str)),
@@ -122,9 +123,18 @@ export async function POST(request: Request) {
         notes,
       },
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
       },
     })
+
+    // Emit real-time creation event
+    emitDutyCreated(duty)
 
     return NextResponse.json(duty)
   } catch (error) {

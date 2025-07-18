@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useRealTimeDuties } from "@/hooks/useRealTimeDuties"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -53,6 +54,9 @@ export function DutyEditor() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
   const [showFilters, setShowFilters] = useState(false)
   const queryClient = useQueryClient()
+  
+  // Initialize real-time updates
+  const { isConnected, connectionError } = useRealTimeDuties()
 
   // Fetch duties with pagination and filtering
   const { data: dutiesData, isLoading: dutiesLoading } = useQuery({

@@ -1,6 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import { useRealTimeDuties } from "@/hooks/useRealTimeDuties"
 import { format, isFuture, isPast } from "date-fns"
 import { Calendar, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -12,6 +13,9 @@ interface MyDutiesProps {
 }
 
 export function MyDuties({ userId }: MyDutiesProps) {
+  // Initialize real-time updates
+  const { isConnected, connectionError } = useRealTimeDuties()
+  
   const { data: duties, isLoading } = useQuery({
     queryKey: ["my-duties", userId],
     queryFn: async () => {
