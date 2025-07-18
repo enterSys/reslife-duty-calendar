@@ -9,9 +9,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Separator } from "@/components/ui/separator"
+import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Pagination, PaginationInfo } from "@/components/ui/pagination"
-import { Trash2, Plus, Save, Calendar, Edit, Check, X, Filter, SortAsc, SortDesc } from "lucide-react"
+import { Trash2, Plus, Save, Calendar, Edit, Check, X, Filter, SortAsc, SortDesc, Search, Users, CalendarDays, ChevronDown, ChevronUp } from "lucide-react"
 import { format } from "date-fns"
 import { toast } from "sonner"
 
@@ -53,14 +58,24 @@ export function DutyEditor() {
   const [endDate, setEndDate] = useState("")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
   const [showFilters, setShowFilters] = useState(false)
+  const [selectedUsers, setSelectedUsers] = useState<number[]>([])
+  const [selectedDutyTypes, setSelectedDutyTypes] = useState<string[]>([])
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(false)
   const queryClient = useQueryClient()
+  
+  // Duty types for filtering
+  const dutyTypes = [
+    { value: "weekday", label: "Weekday" },
+    { value: "weekend", label: "Weekend" }
+  ]
   
   // Initialize real-time updates
   const { isConnected, connectionError } = useRealTimeDuties()
 
   // Fetch duties with pagination and filtering
   const { data: dutiesData, isLoading: dutiesLoading } = useQuery({
-    queryKey: ["admin-duties", currentPage, pageSize, startDate, endDate, sortOrder],
+    queryKey: ["admin-duties", currentPage, pageSize, startDate, endDate, sortOrder, selectedUsers, selectedDutyTypes, searchQuery],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: currentPage.toString(),
@@ -70,6 +85,9 @@ export function DutyEditor() {
       
       if (startDate) params.append("startDate", startDate)
       if (endDate) params.append("endDate", endDate)
+      if (selectedUsers.length > 0) params.append("userIds", selectedUsers.join(","))
+      if (selectedDutyTypes.length > 0) params.append("dutyTypes", selectedDutyTypes.join(","))
+      if (searchQuery) params.append("search", searchQuery)
       
       const response = await fetch(`/api/duties?${params}`)
       if (!response.ok) throw new Error("Failed to fetch duties")
@@ -348,7 +366,48 @@ export function DutyEditor() {
   const handleClearFilters = () => {
     setStartDate("")
     setEndDate("")
+    setSelectedUsers([])
+    setSelectedDutyTypes([])
+    setSearchQuery("")
     setCurrentPage(1)
+  }
+  
+  const handleUserToggle = (userId: number) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    )
+    setCurrentPage(1)
+  }
+  
+  const handleDutyTypeToggle = (dutyType: string) => {
+    setSelectedDutyTypes(prev => 
+      prev.includes(dutyType) 
+        ? prev.filter(type => type !== dutyType)
+        : [...prev, dutyType]
+    )
+    setCurrentPage(1)
+  }
+  
+  const handleQuickDateFilter = (days: number) => {
+    const today = new Date()
+    const futureDate = new Date(today)
+    futureDate.setDate(today.getDate() + days)
+    
+    setStartDate(today.toISOString().split('T')[0])
+    setEndDate(futureDate.toISOString().split('T')[0])
+    setCurrentPage(1)
+  }
+  
+  const getActiveFiltersCount = () => {
+    let count = 0
+    if (startDate) count++
+    if (endDate) count++
+    if (selectedUsers.length > 0) count++
+    if (selectedDutyTypes.length > 0) count++
+    if (searchQuery) count++
+    return count
   }
 
   const handleSortToggle = () => {
@@ -359,7 +418,7 @@ export function DutyEditor() {
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [startDate, endDate])
+  }, [startDate, endDate, selectedUsers, selectedDutyTypes, searchQuery])
 
   const sortedDuties = [...duties]
 
@@ -388,72 +447,275 @@ export function DutyEditor() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {/* Filters and Controls */}
-          <div className="flex flex-col md:flex-row gap-4 mb-4">
-            <div className="flex-1">
-              <Button
-                onClick={() => setShowFilters(!showFilters)}
-                variant="outline"
-                className="mb-2"
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                {showFilters ? "Hide Filters" : "Show Filters"}
-              </Button>
-              
-              {showFilters && (
-                <div className="flex flex-wrap gap-4 p-4 bg-muted/50 rounded-lg">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium">Start Date</label>
-                    <Input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="w-40"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium">End Date</label>
-                    <Input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="w-40"
-                    />
-                  </div>
-                  <div className="flex items-end gap-2">
-                    <Button
-                      onClick={handleClearFilters}
-                      variant="outline"
-                      size="sm"
-                    >
-                      Clear Filters
-                    </Button>
-                    <Button
-                      onClick={handleSortToggle}
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-1"
-                    >
-                      {sortOrder === "desc" ? (
-                        <SortDesc className="h-4 w-4" />
-                      ) : (
-                        <SortAsc className="h-4 w-4" />
-                      )}
-                      Sort Date
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <div className="flex items-start">
-              {!isAddingNew ? (
-                <Button onClick={() => setIsAddingNew(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add New Duty
+          {/* Enhanced Filters and Controls */}
+          <div className="flex flex-col gap-4 mb-4">
+            {/* Filter Toggle Bar */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => setShowFilters(!showFilters)}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Filter className="h-4 w-4" />
+                  Filters
+                  {getActiveFiltersCount() > 0 && (
+                    <Badge variant="secondary" className="ml-1">
+                      {getActiveFiltersCount()}
+                    </Badge>
+                  )}
+                  {showFilters ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
                 </Button>
-              ) : null}
+                
+                {getActiveFiltersCount() > 0 && (
+                  <Button
+                    onClick={handleClearFilters}
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground"
+                  >
+                    Clear All
+                  </Button>
+                )}
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={handleSortToggle}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-1"
+                >
+                  {sortOrder === "desc" ? (
+                    <SortDesc className="h-4 w-4" />
+                  ) : (
+                    <SortAsc className="h-4 w-4" />
+                  )}
+                  Sort Date
+                </Button>
+                
+                {!isAddingNew && (
+                  <Button onClick={() => setIsAddingNew(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add New Duty
+                  </Button>
+                )}
+              </div>
             </div>
+
+            {/* Active Filter Chips */}
+            {getActiveFiltersCount() > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {startDate && (
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <CalendarDays className="h-3 w-3" />
+                    From: {format(new Date(startDate), "MMM dd, yyyy")}
+                    <X
+                      className="h-3 w-3 cursor-pointer"
+                      onClick={() => setStartDate("")}
+                    />
+                  </Badge>
+                )}
+                {endDate && (
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <CalendarDays className="h-3 w-3" />
+                    To: {format(new Date(endDate), "MMM dd, yyyy")}
+                    <X
+                      className="h-3 w-3 cursor-pointer"
+                      onClick={() => setEndDate("")}
+                    />
+                  </Badge>
+                )}
+                {selectedUsers.length > 0 && (
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <Users className="h-3 w-3" />
+                    Users: {selectedUsers.length}
+                    <X
+                      className="h-3 w-3 cursor-pointer"
+                      onClick={() => setSelectedUsers([])}
+                    />
+                  </Badge>
+                )}
+                {selectedDutyTypes.length > 0 && (
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <Filter className="h-3 w-3" />
+                    Types: {selectedDutyTypes.length}
+                    <X
+                      className="h-3 w-3 cursor-pointer"
+                      onClick={() => setSelectedDutyTypes([])}
+                    />
+                  </Badge>
+                )}
+                {searchQuery && (
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <Search className="h-3 w-3" />
+                    Search: "{searchQuery}"
+                    <X
+                      className="h-3 w-3 cursor-pointer"
+                      onClick={() => setSearchQuery("")}
+                    />
+                  </Badge>
+                )}
+              </div>
+            )}
+            
+            {/* Expanded Filters Panel */}
+            {showFilters && (
+              <Card className="border-dashed">
+                <CardContent className="p-4">
+                  <div className="space-y-4">
+                    {/* Quick Date Presets */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Quick Date Filters</Label>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleQuickDateFilter(7)}
+                        >
+                          Next 7 Days
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleQuickDateFilter(30)}
+                        >
+                          Next 30 Days
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleQuickDateFilter(90)}
+                        >
+                          Next 90 Days
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <Separator />
+                    
+                    {/* Custom Date Range */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Start Date</Label>
+                        <Input
+                          type="date"
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">End Date</Label>
+                        <Input
+                          type="date"
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <Separator />
+                    
+                    {/* Advanced Filters */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Search Filter */}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Search Notes</Label>
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            placeholder="Search in notes..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-10"
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* User Filter */}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Filter by Users</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" className="w-full justify-start">
+                              <Users className="mr-2 h-4 w-4" />
+                              {selectedUsers.length === 0
+                                ? "Select users..."
+                                : `${selectedUsers.length} users selected`}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80 p-0">
+                            <Command>
+                              <CommandInput placeholder="Search users..." />
+                              <CommandList>
+                                <CommandEmpty>No users found.</CommandEmpty>
+                                <CommandGroup>
+                                  {users.map((user: User) => (
+                                    <CommandItem
+                                      key={user.id}
+                                      onSelect={() => handleUserToggle(user.id)}
+                                    >
+                                      <div className="flex items-center space-x-2">
+                                        <Checkbox
+                                          checked={selectedUsers.includes(user.id)}
+                                          onChange={() => handleUserToggle(user.id)}
+                                        />
+                                        <span>{user.fullName}</span>
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      
+                      {/* Duty Type Filter */}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Filter by Type</Label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" className="w-full justify-start">
+                              <Filter className="mr-2 h-4 w-4" />
+                              {selectedDutyTypes.length === 0
+                                ? "Select types..."
+                                : `${selectedDutyTypes.length} types selected`}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-60 p-0">
+                            <Command>
+                              <CommandList>
+                                <CommandGroup>
+                                  {dutyTypes.map((type) => (
+                                    <CommandItem
+                                      key={type.value}
+                                      onSelect={() => handleDutyTypeToggle(type.value)}
+                                    >
+                                      <div className="flex items-center space-x-2">
+                                        <Checkbox
+                                          checked={selectedDutyTypes.includes(type.value)}
+                                          onChange={() => handleDutyTypeToggle(type.value)}
+                                        />
+                                        <span>{type.label}</span>
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Add New Duty */}

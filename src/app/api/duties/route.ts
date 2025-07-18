@@ -22,6 +22,9 @@ export async function GET(request: Request) {
     const userId = searchParams.get("userId")
     const startDate = searchParams.get("startDate")
     const endDate = searchParams.get("endDate")
+    const userIds = searchParams.get("userIds")
+    const dutyTypes = searchParams.get("dutyTypes")
+    const search = searchParams.get("search")
     const page = parseInt(searchParams.get("page") || "1")
     const limit = parseInt(searchParams.get("limit") || "20")
     const sortOrder = searchParams.get("sortOrder") || "desc"
@@ -33,6 +36,30 @@ export async function GET(request: Request) {
     
     if (userId) {
       where.userId = parseInt(userId)
+    }
+    
+    // Handle multiple user IDs filter
+    if (userIds) {
+      const userIdArray = userIds.split(",").map(id => parseInt(id.trim())).filter(id => !isNaN(id))
+      if (userIdArray.length > 0) {
+        where.userId = { in: userIdArray }
+      }
+    }
+    
+    // Handle duty types filter
+    if (dutyTypes) {
+      const dutyTypeArray = dutyTypes.split(",").map(type => type.trim()).filter(type => type)
+      if (dutyTypeArray.length > 0) {
+        where.dutyType = { in: dutyTypeArray }
+      }
+    }
+    
+    // Handle search filter
+    if (search) {
+      where.notes = {
+        contains: search,
+        mode: "insensitive"
+      }
     }
     
     if (startDate || endDate) {
