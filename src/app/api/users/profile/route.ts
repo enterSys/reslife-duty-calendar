@@ -6,7 +6,7 @@ import { z } from "zod"
 const updateProfileSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
-  allocatedBuilding: z.string().optional(),
+  building: z.string().optional(),
 })
 
 export async function PATCH(req: NextRequest) {
@@ -38,13 +38,13 @@ export async function PATCH(req: NextRequest) {
       data: {
         fullName: validatedData.fullName,
         email: validatedData.email,
-        allocatedBuilding: validatedData.allocatedBuilding || null,
+        building: validatedData.building || null,
       },
       select: {
         id: true,
         fullName: true,
         email: true,
-        allocatedBuilding: true,
+        building: true,
       },
     })
 

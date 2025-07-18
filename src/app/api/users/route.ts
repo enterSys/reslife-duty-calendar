@@ -9,7 +9,7 @@ const createUserSchema = z.object({
   fullName: z.string().min(1),
   role: z.enum(["user", "admin"]).default("user"),
   password: z.string().min(6),
-  allocatedBuilding: z.string().optional(),
+  building: z.string().optional(),
 })
 
 export async function GET() {
@@ -25,7 +25,7 @@ export async function GET() {
         email: true,
         fullName: true,
         role: true,
-        allocatedBuilding: true,
+        building: true,
         createdAt: true,
         _count: {
           select: {
@@ -91,14 +91,14 @@ export async function POST(request: Request) {
         fullName: data.fullName,
         role: data.role,
         passwordHash: hashedPassword,
-        allocatedBuilding: data.allocatedBuilding,
+        building: data.building,
       },
       select: {
         id: true,
         email: true,
         fullName: true,
         role: true,
-        allocatedBuilding: true,
+        building: true,
         createdAt: true,
         _count: {
           select: {

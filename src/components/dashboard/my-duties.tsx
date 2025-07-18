@@ -72,13 +72,13 @@ export function MyDuties({ userId }: MyDutiesProps) {
 
   const getDutyStatus = (duty: any) => {
     const dutyDate = new Date(duty.dutyDate)
-    if (isToday(dutyDate)) return { status: "today", color: "text-orange-600", bg: "bg-orange-50 border-orange-200" }
+    if (isToday(dutyDate)) return { status: "today", color: "text-destructive", bg: "bg-destructive/10 border-destructive/20" }
     if (isFuture(dutyDate)) {
       const daysUntil = differenceInDays(dutyDate, new Date())
-      if (daysUntil <= 3) return { status: "upcoming-soon", color: "text-amber-600", bg: "bg-amber-50 border-amber-200" }
-      return { status: "upcoming", color: "text-blue-600", bg: "bg-blue-50 border-blue-200" }
+      if (daysUntil <= 3) return { status: "upcoming-soon", color: "text-accent-foreground", bg: "bg-accent border-accent" }
+      return { status: "upcoming", color: "text-primary", bg: "bg-primary/10 border-primary/20" }
     }
-    return { status: "past", color: "text-gray-500", bg: "bg-gray-50 border-gray-200" }
+    return { status: "past", color: "text-muted-foreground", bg: "bg-muted border-muted" }
   }
 
   const getTimeUntilDuty = (duty: any) => {
@@ -134,12 +134,12 @@ export function MyDuties({ userId }: MyDutiesProps) {
                   {duty.dutyType}
                 </Badge>
                 {dutyStatus.status === "today" && (
-                  <Badge variant="outline" className="text-orange-600 border-orange-300">
+                  <Badge variant="destructive">
                     Today
                   </Badge>
                 )}
                 {dutyStatus.status === "upcoming-soon" && (
-                  <Badge variant="outline" className="text-amber-600 border-amber-300">
+                  <Badge variant="secondary">
                     Soon
                   </Badge>
                 )}
@@ -170,12 +170,12 @@ export function MyDuties({ userId }: MyDutiesProps) {
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             {isConnected ? (
               <>
-                <Wifi className="h-4 w-4 text-green-600" />
+                <Wifi className="h-4 w-4 text-primary" />
                 <span>Live</span>
               </>
             ) : (
               <>
-                <WifiOff className="h-4 w-4 text-red-600" />
+                <WifiOff className="h-4 w-4 text-destructive" />
                 <span>Offline</span>
               </>
             )}
@@ -204,8 +204,8 @@ export function MyDuties({ userId }: MyDutiesProps) {
       {todayDuties.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-orange-600" />
-            <h3 className="text-lg font-semibold text-orange-600">Today's Duties</h3>
+            <AlertCircle className="h-5 w-5 text-destructive" />
+            <h3 className="text-lg font-semibold text-destructive">Today's Duties</h3>
           </div>
           <div className="space-y-3">
             {todayDuties.map((duty: any, index: number) => (
@@ -219,7 +219,7 @@ export function MyDuties({ userId }: MyDutiesProps) {
       {(viewMode === "upcoming" || viewMode === "all") && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-blue-600" />
+            <Calendar className="h-5 w-5 text-primary" />
             <h3 className="text-lg font-semibold">Upcoming Duties</h3>
             <Badge variant="outline" className="text-xs">
               {upcomingDuties.length}
@@ -228,7 +228,7 @@ export function MyDuties({ userId }: MyDutiesProps) {
           {upcomingDuties.length === 0 ? (
             <Card className="p-6 text-center">
               <div className="space-y-2">
-                <CheckCircle2 className="h-8 w-8 text-green-600 mx-auto" />
+                <CheckCircle2 className="h-8 w-8 text-primary mx-auto" />
                 <p className="text-muted-foreground">No upcoming duties</p>
                 <p className="text-sm text-muted-foreground">You're all caught up!</p>
               </div>
@@ -249,7 +249,7 @@ export function MyDuties({ userId }: MyDutiesProps) {
       {(viewMode === "past" || viewMode === "all") && pastDuties.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-600" />
+            <CheckCircle2 className="h-5 w-5 text-primary" />
             <h3 className="text-lg font-semibold">Past Duties</h3>
             <Badge variant="outline" className="text-xs">
               {pastDuties.length}
